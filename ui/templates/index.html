@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIRA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f23 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(ellipse at center, rgba(0, 212, 255, 0.03) 0%, transparent 70%),
+                radial-gradient(ellipse at 20% 80%, rgba(138, 43, 226, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
+            animation: rotate 60s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00d4ff, #8a2be2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.8); }
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00d4ff, #8a2be2, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 20px;
+            font-size: 14px;
+            color: #00ff88;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Chat container */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 140px);
+        }
+
+        .chat-header {
+            background: rgba(20, 20, 40, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px 20px 0 0;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-bottom: none;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .aira-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00d4ff, #8a2be2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(138, 43, 226, 0.8); }
+        }
+
+        .aira-info h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .aira-info p {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .chat-messages {
+            flex: 1;
+            background: rgba(15, 15, 35, 0.9);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid rgba(0, 212, 255, 0.1);
+            border-right: 1px solid rgba(0, 212, 255, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.aira {
+            align-self: flex-start;
+            background: rgba(138, 43, 226, 0.3);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            background: rgba(20, 20, 40, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 0 0 20px 20px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-top: none;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 25px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .chat-input input::placeholder {
+            color: #666;
+        }
+
+        .send-btn, .mic-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #fff;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .mic-btn {
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #ff4444;
+            color: #ff4444;
+        }
+
+        .mic-btn:hover {
+            background: rgba(255, 0, 0, 0.3);
+            transform: scale(1.1);
+        }
+
+        .mic-btn.recording {
+            animation: recording 1s ease-in-out infinite;
+            background: rgba(255, 0, 0, 0.5);
+        }
+
+        @keyframes recording {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 0, 0, 0.8); }
+        }
+
+        /* Quick actions */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(20, 20, 40, 0.5);
+            border-left: 1px solid rgba(0, 212, 255, 0.1);
+            border-right: 1px solid rgba(0, 212, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .quick-btn {
+            padding: 8px 16px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            color: #00d4ff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Voice visualizer */
+        .voice-visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 40px;
+            padding: 10px;
+        }
+
+        .voice-bar {
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #00d4ff, #8a2be2);
+            border-radius: 2px;
+            animation: voiceWave 0.5s ease-in-out infinite;
+        }
+
+        .voice-bar:nth-child(1) { animation-delay: 0.0s; }
+        .voice-bar:nth-child(2) { animation-delay: 0.1s; }
+        .voice-bar:nth-child(3) { animation-delay: 0.2s; }
+        .voice-bar:nth-child(4) { animation-delay: 0.3s; }
+        .voice-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes voiceWave {
+            0%, 100% { height: 20px; }
+            50% { height: 40px; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+            .logo-text {
+                font-size: 20px;
+            }
+            .container {
+                padding: 10px;
+            }
+            .chat-header {
+                padding: 15px;
+            }
+            .aira-avatar {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+            .aira-info h2 {
+                font-size: 16px;
+            }
+            .message {
+                max-width: 90%;
+            }
+            .chat-input {
+                padding: 15px;
+            }
+            .chat-input input {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+            .send-btn, .mic-btn {
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🤖</div>
+            <span class="logo-text">AIRA</span>
+        </div>
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            <span>ONLINE</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Center - Chat -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="aira-avatar">🤖</div>
+                <div class="aira-info">
+                    <h2>AIRA</h2>
+                    <p>Artificial Intelligence Research Assistant</p>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message aira">
+                    <div>Hello Joss! I'm AIRA, your AI assistant. I can control your computer and speak to you. How can I help you today?</div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="sendCommand('open linkedin')">💼 LinkedIn</button>
+                <button class="quick-btn" onclick="sendCommand('open github')">💻 GitHub</button>
+                <button class="quick-btn" onclick="sendCommand('open chrome')">🌐 Browser</button>
+                <button class="quick-btn" onclick="sendCommand('screenshot')">📸 Screenshot</button>
+                <button class="quick-btn" onclick="sendCommand('what can you do')">❓ Help</button>
+            </div>
+
+            <div class="chat-input">
+                <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
+                    <span class="material-icons">mic</span>
+                </button>
+                <input type="text" id="userInput" placeholder="Type a message or click mic to speak..." onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()">
+                    <span class="material-icons">send</span>
+                </button>
+            </div>
+
+            <div class="voice-visualizer">
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+                <div class="voice-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let messageCount = 1;
+        let recognition = null;
+
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                document.getElementById('userInput').value = text;
+                sendMessage();
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                document.getElementById('micBtn').classList.remove('recording');
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                isRecording = false;
+                document.getElementById('micBtn').classList.remove('recording');
+                addMessage('aira', 'Voice recognition not available. Please type your message.');
+            };
+        }
+
+        function toggleRecording() {
+            if (!recognition) {
+                addMessage('aira', 'Voice recognition not supported in this browser. Please type your message.');
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+                isRecording = false;
+                document.getElementById('micBtn').classList.remove('recording');
+            } else {
+                recognition.start();
+                isRecording = true;
+                document.getElementById('micBtn').classList.add('recording');
+                addMessage('aira', 'Listening... Speak now!');
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+
+            // Send to API
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessage('aira', data.response);
+                
+                // Play voice response
+                if (data.voice_file) {
+                    playVoice();
+                }
+            })
+            .catch(error => {
+                addMessage('aira', 'Sorry, I encountered an error. Please try again.');
+            });
+        }
+
+        function sendCommand(command) {
+            addMessage('user', command);
+            
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: command })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessage('aira', data.response);
+                if (data.command) {
+                    addMessage('aira', data.command);
+                }
+            });
+        }
+
+        function addMessage(sender, text) {
+            const messages = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `
+                <div>${text}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+            
+            messageCount++;
+        }
+
+        function playVoice() {
+            const audio = new Audio('/api/voice-file');
+            audio.play().catch(e => console.log('Voice play error:', e));
+        }
+    </script>
+</body>
+</html>

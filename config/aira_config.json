@@ -1,0 +1,29 @@
+{
+  "name": "AIRA",
+  "full_name": "Artificial Intelligence Research Assistant",
+  "version": "1.0.0",
+  "creator": "Joss Collen",
+  "voice": {
+    "engine": "pyttsx3",
+    "gender": "female",
+    "voice_id": "english_rp_female",
+    "rate": 150,
+    "volume": 1.0
+  },
+  "brain": {
+    "provider": "omniroute",
+    "fallback": "backup_api",
+    "model": "default"
+  },
+  "safety": {
+    "confirm_dangerous": true,
+    "allowed_folders": ["D:/AIRA", "D:/Documents", "C:/Users/DELL"],
+    "blocked_folders": ["C:/Windows", "C:/Program Files"],
+    "log_all_actions": true
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 5000,
+    "debug": false
+  }
+}
