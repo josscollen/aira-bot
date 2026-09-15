@@ -1,16 +1,11 @@
 # AIRA - Main Application (Render Version)
-# Artificial Intelligence Research Assistant
-
 from flask import Flask, render_template, request, jsonify, send_file
-import os
-import sys
+import os, sys, tempfile
 
 AIRA_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(AIRA_DIR, 'brain'))
-sys.path.insert(0, os.path.join(AIRA_DIR, 'automations'))
 
-from aira_brain import AIRABrain
-from aira_auto import AIRAAutomations
+from aira_brain import AIRABrain, AIRAVoice
 
 app = Flask(__name__, 
             template_folder=os.path.join(AIRA_DIR, 'ui', 'templates'),
@@ -18,7 +13,6 @@ app = Flask(__name__,
 
 AIRA_PASSWORD = 'Jossloveaira@123'
 brain = AIRABrain()
-automations = AIRAAutomations()
 
 @app.route('/')
 def home():
@@ -39,30 +33,41 @@ def chat():
     
     user_message = data.get('message', '')
     response = brain.think(user_message)
-    command_result = process_command(user_message)
     
     return jsonify({
         'response': response,
-        'command': command_result,
         'status': 'success'
     })
 
-@app.route('/api/voice-speak', methods=['POST'])
-def voice_speak():
-    """Return text for browser TTS"""
+@app.route('/api/speak', methods=['POST'])
+def speak():
+    """Generate speech audio using edge-tts"""
     data = request.json
     if data.get('password', '') != AIRA_PASSWORD:
         return jsonify({'status': 'unauthorized'}), 401
-    return jsonify({'text': data.get('text', ''), 'status': 'success'})
+    
+    text = data.get('text', '')
+    if not text:
+        return jsonify({'status': 'no text'}), 400
+    
+    # Generate audio
+    output = os.path.join(tempfile.gettempdir(), 'aira_speech.mp3')
+    success = AIRAVoice.generate_speech_sync(text, output)
+    
+    if success and os.path.exists(output):
+        return send_file(output, mimetype='audio/mpeg', as_attachment=False)
+    
+    return jsonify({'status': 'tts error'}), 500
+
+@app.route('/api/voices')
+def voices():
+    return jsonify(AIRAVoice.get_available_voices())
 
 @app.route('/api/status')
 def status():
     return jsonify({
-        'name': 'AIRA',
-        'version': '2.0.0',
-        'status': 'online',
-        'creator': 'Joss Collen',
-        'brain': 'Groq AI',
+        'name': 'AIRA', 'version': '3.0.0', 'status': 'online',
+        'creator': 'Joss Collen', 'brain': 'Groq AI + edge-tts',
         'protected': True
     })
 
@@ -74,19 +79,6 @@ def memory():
 def clear_memory():
     brain.clear_memory()
     return jsonify({'status': 'memory cleared'})
-
-def process_command(message):
-    msg = message.lower()
-    if 'open linkedin' in msg:
-        return automations.open_linkedin()
-    elif 'open github' in msg:
-        return automations.open_github()
-    elif 'open chrome' in msg or 'open browser' in msg:
-        return automations.open_browser()
-    elif 'search' in msg:
-        query = msg.replace('search', '').replace('for', '').strip()
-        return automations.search_google(query)
-    return None
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

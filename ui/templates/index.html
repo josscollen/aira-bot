@@ -315,18 +315,33 @@
     }
     function updateCount(){document.getElementById('sMsgs').textContent=msgN}
 
-    // === TTS ===
+    // === TTS using edge-tts (server-side Microsoft female voice) ===
+    let currentAudio=null;
     function speak(text){
-        if(!synth)return;
-        synth.cancel();
-        const u=new SpeechSynthesisUtterance(text);
-        u.rate=1.05;u.pitch=1.15;u.volume=1;
-        const voices=synth.getVoices();
-        const fem=voices.find(v=>/female|samantha|victoria|zira|google.*female|karen|moira|tessa/i.test(v.name));
-        if(fem)u.voice=fem;
-        u.onstart=()=>{speaking=true;document.getElementById('robotCore').classList.add('speaking');document.getElementById('robotFace').textContent='🗣️'};
-        u.onend=()=>{speaking=false;document.getElementById('robotCore').classList.remove('speaking');document.getElementById('robotFace').textContent='🤖'};
-        synth.speak(u);
+        if(currentAudio){currentAudio.pause();currentAudio=null}
+        document.getElementById('robotCore').classList.add('speaking');
+        document.getElementById('robotFace').textContent='🗣️';
+        fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({text:text,password:PWD})})
+        .then(r=>{if(!r.ok)throw new Error();return r.blob()})
+        .then(blob=>{
+            const url=URL.createObjectURL(blob);
+            currentAudio=new Audio(url);
+            currentAudio.onended=()=>{document.getElementById('robotCore').classList.remove('speaking');document.getElementById('robotFace').textContent='🤖';URL.revokeObjectURL(url);currentAudio=null};
+            currentAudio.onerror=()=>{document.getElementById('robotCore').classList.remove('speaking');document.getElementById('robotFace').textContent='🤖';currentAudio=null};
+            currentAudio.play();
+        })
+        .catch(()=>{
+            // Fallback to browser TTS
+            if(synth){
+                const u=new SpeechSynthesisUtterance(text);u.rate=1.05;u.pitch=1.15;
+                const voices=synth.getVoices();
+                const fem=voices.find(v=>/female|samantha|victoria|zira|karen/i.test(v.name));
+                if(fem)u.voice=fem;
+                u.onend=()=>{document.getElementById('robotCore').classList.remove('speaking');document.getElementById('robotFace').textContent='🤖'};
+                synth.speak(u);
+            }
+        });
     }
     function speakLast(){if(lastResp)speak(lastResp)}
 

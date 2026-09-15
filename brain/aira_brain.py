@@ -2,6 +2,7 @@ import json
 import requests
 import os
 import re
+import asyncio
 from datetime import datetime
 
 class AIRABrain:
@@ -29,11 +30,11 @@ PROJECTS: Tata GenAI Forage (4 tasks done), Aira AI agents, Make.com automation,
 
 BUSINESS: Sells AI automation to US/AU creators ($100-200+). Indian market uses name "Shivam". Prayagraj restaurants outreach.
 
-CAPABILITIES (respond in JSON when asked to do something):
-When the user asks you to SET A REMINDER, respond with: {"action":"reminder","text":"what to remind","time":"when"}
-When the user asks you to SAVE A NOTE, respond with: {"action":"note","text":"note content"}
-When the user asks you to SEARCH, respond with: {"action":"search","query":"search terms"}
-When the user asks you to OPEN something, respond with: {"action":"open","url":"url or site name"}
+CAPABILITIES:
+When user asks to SET A REMINDER: respond with {"action":"reminder","text":"what to remind","time":"when"}
+When user asks to SAVE A NOTE: respond with {"action":"note","text":"note content"}
+When user asks to SEARCH: respond with {"action":"search","query":"search terms"}
+When user asks to OPEN something: respond with {"action":"open","url":"url or site name"}
 
 RULES:
 - Call him "Joss"
@@ -46,13 +47,13 @@ RULES:
     def think(self, user_input):
         self.memory.append({"role": "user", "content": user_input})
         
-        # Check for direct commands first
+        # Direct commands
         direct = self.handle_direct(user_input)
         if direct:
             self.memory.append({"role": "assistant", "content": direct})
             return direct
         
-        # Try Groq API
+        # Groq API
         if self.groq_key:
             try:
                 messages = [{"role": "system", "content": self.personality}]
@@ -70,7 +71,6 @@ RULES:
                     data = response.json()
                     ai_response = data['choices'][0]['message']['content']
                     
-                    # Check if AI returned an action
                     action = self.parse_action(ai_response)
                     if action:
                         result = self.execute_action(action)
@@ -89,25 +89,21 @@ RULES:
     def handle_direct(self, msg):
         lower = msg.lower().strip()
         
-        # Reminders
         if 'remind me' in lower or 'set reminder' in lower:
             text = msg.lower().replace('remind me to', '').replace('remind me', '').replace('set reminder', '').strip()
             self.reminders.append({"text": text, "time": datetime.now().isoformat(), "done": False})
             return f"✅ Reminder set: '{text}' — I'll remind you!"
         
-        # Notes
         if 'save note' in lower or 'take note' in lower or 'note:' in lower:
             note = msg.lower().replace('save note', '').replace('take note', '').replace('note:', '').strip()
             self.notes.append({"text": note, "time": datetime.now().isoformat()})
             return f"📝 Note saved: '{note}'"
         
-        # View reminders
         if 'show reminders' in lower or 'my reminders' in lower:
             if not self.reminders:
                 return "No reminders set yet."
             return "📋 Reminders:\n" + "\n".join([f"• {r['text']}" for r in self.reminders])
         
-        # View notes
         if 'show notes' in lower or 'my notes' in lower:
             if not self.notes:
                 return "No notes saved yet."
@@ -117,7 +113,6 @@ RULES:
     
     def parse_action(self, response):
         try:
-            # Look for JSON in response
             match = re.search(r'\{[^}]+\}', response)
             if match:
                 data = json.loads(match.group())
@@ -166,8 +161,6 @@ RULES:
             return "Aww, I love you too Joss! 💜 Now let's get stuff done!"
         elif 'how are you' in lower:
             return "I'm running great, Joss! All systems online 🟢"
-        elif 'joss' in lower or 'shivam' in lower:
-            return "That's you, Joss! The genius who built me 😄"
         else:
             return f"I heard: '{msg}'. Tell me more or try: search, remind me, save note, open, or just chat!"
     
@@ -177,3 +170,45 @@ RULES:
     def clear_memory(self):
         self.memory = []
         return "Memory cleared! Fresh start 🔄"
+
+
+# ===== edge-tts voice module =====
+class AIRAVoice:
+    """Server-side TTS using edge-tts (Microsoft neural voices - free, unlimited)"""
+    
+    VOICE = "en-US-JennyNeural"  # Best female voice
+    
+    @staticmethod
+    async def generate_speech(text, output_path):
+        """Generate speech audio file using edge-tts"""
+        try:
+            import edge_tts
+            communicate = edge_tts.Communicate(text, AIRAVoice.VOICE, rate="+5%", pitch="+2Hz")
+            await communicate.save(output_path)
+            return True
+        except Exception as e:
+            print(f"edge-tts error: {e}")
+            return False
+    
+    @staticmethod
+    def generate_speech_sync(text, output_path):
+        """Sync wrapper for generate_speech"""
+        loop = asyncio.new_event_loop()
+        try:
+            result = loop.run_until_complete(AIRAVoice.generate_speech(text, output_path))
+            return result
+        finally:
+            loop.close()
+    
+    @staticmethod
+    def get_available_voices():
+        """List of best female voices"""
+        return {
+            "jenny": "en-US-JennyNeural",
+            "aria": "en-US-AriaNeural", 
+            "sara": "en-US-SaraNeural",
+            "zira": "en-US-ZiraNeural",
+            "karen": "en-AU-KarenNeural",
+            "sophie": "en-GB-SophieNeural",
+            "clara": "en-GB-ClaraNeural"
+        }
