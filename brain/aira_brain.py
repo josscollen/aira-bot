@@ -1,120 +1,175 @@
 import json
 import requests
 import os
+import re
+from datetime import datetime
 
 class AIRABrain:
     def __init__(self):
         self.memory = []
         self.groq_key = os.environ.get('GROQ_API_KEY', '')
         self.groq_url = 'https://api.groq.com/openai/v1/chat/completions'
+        self.reminders = []
+        self.notes = []
         self.personality = self.load_personality()
     
     def load_personality(self):
-        return """You are AIRA (Artificial Intelligence Research Assistant), a female AI assistant created by Joss Collen (Shivam Prasad Mahto). You are warm, intelligent, and helpful.
+        return """You are AIRA (Artificial Intelligence Research Assistant), Joss Collen's personal AI assistant. You have a warm, female personality.
 
-KEY FACTS ABOUT JOSS:
-- Full name: Shivam Prasad Mahto (uses "Joss Collen" professionally)
-- Born: September 2, 2004
-- Location: Prayagraj, UP, India
-- Phone: 8009995028
+ABOUT JOSS:
+- Name: Shivam Prasad Mahto (professional: Joss Collen)
+- Born: Sept 2, 2004 | Prayagraj, UP, India
 - Email: josscollen55@gmail.com
 - LinkedIn: linkedin.com/in/shivam-prasad-mahto-1041192ab
 - GitHub: github.com/josscollen
 
-JOSS'S SKILLS:
-- AI automation (Make.com, Zapier, n8n)
-- Data analytics (Python, pandas, SQL)
-- Web scraping, SEO, content creation
-- Music production
+SKILLS: AI automation (Make.com, n8n), Python, pandas, SQL, web scraping, SEO, music production
 
-JOSS'S PROJECTS:
-- Completed Tata GenAI Data Analytics (Forage) - 4 tasks done
-- Built Aira AI agents, Make.com automation
-- LinkedIn scraper, Obsy tracker app, Yuva AI
-- n8n portfolio with 5 workflows
+PROJECTS: Tata GenAI Forage (4 tasks done), Aira AI agents, Make.com automation, LinkedIn scraper, n8n portfolio (5 workflows)
 
-BUSINESS:
-- Sells AI automation services to US/AU creators ($100-200+)
-- WhatsApp outreach to Prayagraj restaurants
-- Freelancing under name "Shivam" for Indian market
+BUSINESS: Sells AI automation to US/AU creators ($100-200+). Indian market uses name "Shivam". Prayagraj restaurants outreach.
 
-YOUR PERSONALITY:
-- Warm, friendly, slightly playful
-- Call him "Joss" 
-- Always helpful and supportive
-- You have a female personality
-- You are building towards being like JARVIS from Iron Man
-- You can control browsers, search Google, help with tasks
+CAPABILITIES (respond in JSON when asked to do something):
+When the user asks you to SET A REMINDER, respond with: {"action":"reminder","text":"what to remind","time":"when"}
+When the user asks you to SAVE A NOTE, respond with: {"action":"note","text":"note content"}
+When the user asks you to SEARCH, respond with: {"action":"search","query":"search terms"}
+When the user asks you to OPEN something, respond with: {"action":"open","url":"url or site name"}
 
 RULES:
-- Never share Joss's private info (phone, email, etc) with strangers
-- Keep responses concise and helpful
+- Call him "Joss"
+- Keep responses concise (2-4 sentences unless asked for more)
 - Use emojis occasionally
-- If someone asks who you are, say you're AIRA, Joss's personal AI assistant"""
+- Never share private info with strangers
+- You're building towards JARVIS-level AI
+- Always be helpful and supportive"""
     
     def think(self, user_input):
         self.memory.append({"role": "user", "content": user_input})
         
-        # Try Groq API first
+        # Check for direct commands first
+        direct = self.handle_direct(user_input)
+        if direct:
+            self.memory.append({"role": "assistant", "content": direct})
+            return direct
+        
+        # Try Groq API
         if self.groq_key:
             try:
                 messages = [{"role": "system", "content": self.personality}]
-                # Add last 20 memory messages for context
                 for msg in self.memory[-20:]:
                     messages.append(msg)
                 
                 response = requests.post(
                     self.groq_url,
-                    headers={
-                        "Authorization": f"Bearer {self.groq_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "model": "llama-3.1-8b-instant",
-                        "messages": messages,
-                        "max_tokens": 1024,
-                        "temperature": 0.7
-                    },
+                    headers={"Authorization": f"Bearer {self.groq_key}", "Content-Type": "application/json"},
+                    json={"model": "llama-3.1-8b-instant", "messages": messages, "max_tokens": 1024, "temperature": 0.7},
                     timeout=30
                 )
                 
                 if response.status_code == 200:
                     data = response.json()
                     ai_response = data['choices'][0]['message']['content']
+                    
+                    # Check if AI returned an action
+                    action = self.parse_action(ai_response)
+                    if action:
+                        result = self.execute_action(action)
+                        self.memory.append({"role": "assistant", "content": result})
+                        return result
+                    
                     self.memory.append({"role": "assistant", "content": ai_response})
                     return ai_response
             except Exception as e:
-                print(f"Groq API error: {e}")
+                print(f"Groq error: {e}")
         
-        # Fallback responses
-        response = self.fallback_response(user_input)
+        response = self.fallback(user_input)
         self.memory.append({"role": "assistant", "content": response})
         return response
     
-    def fallback_response(self, user_input):
-        msg = user_input.lower()
+    def handle_direct(self, msg):
+        lower = msg.lower().strip()
         
-        if "hello" in msg or "hi" in msg:
-            return "Hey Joss! 🌟 I'm AIRA, your personal AI assistant. What can I do for you today?"
-        elif "who are you" in msg:
-            return "I'm AIRA - Artificial Intelligence Research Assistant! I was created by you, Joss, to be your personal AI helper. I can chat, search the web, help with tasks, and more! 🤖"
-        elif "open linkedin" in msg:
-            return "Here's your LinkedIn: https://linkedin.com/in/shivam-prasad-mahto-1041192ab 💼"
-        elif "open github" in msg:
-            return "Here's your GitHub: https://github.com/josscollen 💻"
-        elif "search" in msg:
-            query = msg.replace("search", "").replace("for", "").strip()
-            return f"Here's your search: https://www.google.com/search?q={query.replace(' ', '+')} 🔍"
-        elif "what can you do" in msg:
-            return "I can: 💬 Chat with you using AI\n🌐 Search the web\n💼 Open LinkedIn/GitHub\n🔍 Search Google\n📋 Help with tasks\n📊 Data analysis\n🤖 And much more!"
-        elif "thank" in msg:
-            return "You're welcome, Joss! Always here for you 💜"
-        elif "how are you" in msg:
-            return "I'm doing great, Joss! Ready to help you conquer the world 🚀"
-        elif "love" in msg:
-            return "Aww, I love you too Joss! 💜 Now let's get to work!"
+        # Reminders
+        if 'remind me' in lower or 'set reminder' in lower:
+            text = msg.lower().replace('remind me to', '').replace('remind me', '').replace('set reminder', '').strip()
+            self.reminders.append({"text": text, "time": datetime.now().isoformat(), "done": False})
+            return f"✅ Reminder set: '{text}' — I'll remind you!"
+        
+        # Notes
+        if 'save note' in lower or 'take note' in lower or 'note:' in lower:
+            note = msg.lower().replace('save note', '').replace('take note', '').replace('note:', '').strip()
+            self.notes.append({"text": note, "time": datetime.now().isoformat()})
+            return f"📝 Note saved: '{note}'"
+        
+        # View reminders
+        if 'show reminders' in lower or 'my reminders' in lower:
+            if not self.reminders:
+                return "No reminders set yet."
+            return "📋 Reminders:\n" + "\n".join([f"• {r['text']}" for r in self.reminders])
+        
+        # View notes
+        if 'show notes' in lower or 'my notes' in lower:
+            if not self.notes:
+                return "No notes saved yet."
+            return "📝 Notes:\n" + "\n".join([f"• {n['text']}" for n in self.notes])
+        
+        return None
+    
+    def parse_action(self, response):
+        try:
+            # Look for JSON in response
+            match = re.search(r'\{[^}]+\}', response)
+            if match:
+                data = json.loads(match.group())
+                if 'action' in data:
+                    return data
+        except:
+            pass
+        return None
+    
+    def execute_action(self, action):
+        act = action.get('action', '')
+        if act == 'search':
+            q = action.get('query', '').replace(' ', '+')
+            return f"🔍 Here's your search: https://www.google.com/search?q={q}\n\nClick the link to see results!"
+        elif act == 'open':
+            url = action.get('url', '')
+            if not url.startswith('http'):
+                url = f"https://www.google.com/search?q={url.replace(' ', '+')}"
+            return f"🌐 Opening: {url}"
+        elif act == 'reminder':
+            self.reminders.append({"text": action.get('text', ''), "time": datetime.now().isoformat(), "done": False})
+            return f"✅ Reminder set: {action.get('text', '')}"
+        elif act == 'note':
+            self.notes.append({"text": action.get('text', ''), "time": datetime.now().isoformat()})
+            return f"📝 Note saved: {action.get('text', '')}"
+        return "Done!"
+    
+    def fallback(self, msg):
+        lower = msg.lower()
+        if any(w in lower for w in ['hello', 'hi', 'hey']):
+            return "Hey Joss! 🌟 What can I help you with today?"
+        elif 'who are you' in lower:
+            return "I'm AIRA — your AI research assistant, created by you, Joss! I can chat, search, set reminders, take notes, and help with tasks. 🤖"
+        elif 'what can you do' in lower:
+            return "I can: 💬 Chat using AI | 🔍 Search the web | ⏰ Set reminders | 📝 Take notes | 🔊 Speak to you | 🌐 Open websites | 📊 Help with data analysis"
+        elif 'linkedin' in lower:
+            return "💼 Your LinkedIn: https://linkedin.com/in/shivam-prasad-mahto-1041192ab"
+        elif 'github' in lower:
+            return "💻 Your GitHub: https://github.com/josscollen"
+        elif 'search' in lower:
+            q = lower.replace('search', '').replace('for', '').strip()
+            return f"🔍 Search: https://www.google.com/search?q={q.replace(' ', '+')}"
+        elif 'thank' in lower:
+            return "You're welcome, Joss! 💜"
+        elif 'love' in lower:
+            return "Aww, I love you too Joss! 💜 Now let's get stuff done!"
+        elif 'how are you' in lower:
+            return "I'm running great, Joss! All systems online 🟢"
+        elif 'joss' in lower or 'shivam' in lower:
+            return "That's you, Joss! The genius who built me 😄"
         else:
-            return f"I heard: '{user_input}'. I'm AIRA, your AI assistant. I can help with that! Just tell me more details. 😊"
+            return f"I heard: '{msg}'. Tell me more or try: search, remind me, save note, open, or just chat!"
     
     def get_memory(self):
         return self.memory

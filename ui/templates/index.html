@@ -7,307 +7,241 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0f0f23 100%);
-            color: #fff; min-height: 100vh; overflow: hidden;
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Rajdhani',sans-serif;background:#050510;color:#fff;height:100vh;overflow:hidden}
 
         /* ===== LOGIN ===== */
-        .login-screen {
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; padding: 20px;
-        }
-        .login-box {
-            background: rgba(20,20,40,0.9); backdrop-filter: blur(20px);
-            border-radius: 24px; border: 1px solid rgba(0,212,255,0.2);
-            padding: 50px 40px; text-align: center; max-width: 400px; width: 100%;
-        }
-        .login-avatar {
-            width: 100px; height: 100px; margin: 0 auto 20px;
-            border-radius: 50%; overflow: hidden;
-            background: linear-gradient(135deg, #00d4ff, #8a2be2);
-            display: flex; align-items: center; justify-content: center;
-            animation: glow 3s ease-in-out infinite; position: relative;
-        }
-        .login-avatar::before {
-            content: ''; position: absolute; width: 120%; height: 120%;
-            background: conic-gradient(from 0deg, transparent, #00d4ff, transparent, #8a2be2, transparent);
-            animation: rotate 3s linear infinite; border-radius: 50%;
-        }
-        .login-avatar::after {
-            content: '🤖'; font-size: 48px; position: relative; z-index: 1;
-        }
-        @keyframes glow {
-            0%,100% { box-shadow: 0 0 30px rgba(0,212,255,0.5); }
-            50% { box-shadow: 0 0 60px rgba(138,43,226,0.8); }
-        }
-        @keyframes rotate { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-        .login-box h1 {
-            font-family:'Orbitron',sans-serif; font-size:36px;
+        .login{display:flex;justify-content:center;align-items:center;height:100vh;
+            background:radial-gradient(ellipse at center,#0a0a2e 0%,#050510 70%)}
+        .login-box{background:rgba(15,15,35,0.95);border-radius:30px;border:1px solid rgba(0,212,255,0.15);
+            padding:60px 50px;text-align:center;max-width:420px;width:90%;position:relative;overflow:hidden}
+        .login-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+            background:conic-gradient(from 0deg,transparent,rgba(0,212,255,0.03),transparent,rgba(138,43,226,0.03),transparent);
+            animation:spin 10s linear infinite}
+        @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+        .login-avatar{width:120px;height:120px;margin:0 auto 25px;position:relative;z-index:1}
+        .login-avatar .ring{width:120px;height:120px;border-radius:50%;
+            background:conic-gradient(from 0deg,#00d4ff,#8a2be2,#00ff88,#00d4ff);
+            padding:4px;animation:spin 3s linear infinite}
+        .login-avatar .inner{width:100%;height:100%;border-radius:50%;
+            background:radial-gradient(circle,#1a1a3e,#0a0a2e);
+            display:flex;align-items:center;justify-content:center;font-size:50px}
+        .login-box h1{font-family:'Orbitron',sans-serif;font-size:40px;font-weight:900;
             background:linear-gradient(90deg,#00d4ff,#8a2be2,#00ff88);
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-            margin-bottom:5px;
-        }
-        .login-box .subtitle { color:#888; margin-bottom:30px; font-size:14px; }
-        .login-input {
-            width:100%; padding:16px 20px; background:rgba(0,0,0,0.4);
-            border:1px solid rgba(0,212,255,0.3); border-radius:12px;
-            color:#fff; font-family:'Rajdhani',sans-serif; font-size:18px;
-            outline:none; margin-bottom:20px; text-align:center; letter-spacing:3px;
-        }
-        .login-input:focus { border-color:#00d4ff; box-shadow:0 0 20px rgba(0,212,255,0.3); }
-        .login-btn {
-            width:100%; padding:16px; background:linear-gradient(135deg,#00d4ff,#8a2be2);
-            border:none; border-radius:12px; color:#fff;
-            font-family:'Orbitron',sans-serif; font-size:16px; cursor:pointer;
-            transition:all 0.3s ease;
-        }
-        .login-btn:hover { transform:scale(1.02); box-shadow:0 0 40px rgba(0,212,255,0.5); }
-        .login-error { color:#ff4444; margin-top:15px; display:none; }
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;z-index:1}
+        .login-box .sub{color:#555;font-size:13px;margin:5px 0 30px;position:relative;z-index:1}
+        .login-input{width:100%;padding:16px;background:rgba(0,0,0,0.5);border:1px solid rgba(0,212,255,0.2);
+            border-radius:14px;color:#fff;font-size:18px;text-align:center;letter-spacing:4px;outline:none;
+            font-family:'Rajdhani',sans-serif;position:relative;z-index:1;margin-bottom:20px}
+        .login-input:focus{border-color:#00d4ff;box-shadow:0 0 25px rgba(0,212,255,0.2)}
+        .login-btn{width:100%;padding:16px;background:linear-gradient(135deg,#00d4ff,#8a2be2);
+            border:none;border-radius:14px;color:#fff;font-family:'Orbitron',sans-serif;font-size:15px;
+            cursor:pointer;position:relative;z-index:1;transition:all .3s;letter-spacing:2px}
+        .login-btn:hover{transform:scale(1.02);box-shadow:0 0 40px rgba(0,212,255,0.4)}
+        .login-err{color:#ff4444;font-size:13px;margin-top:15px;display:none;position:relative;z-index:1}
 
         /* ===== MAIN APP ===== */
-        .app { display:none; height:100vh; }
-        .main-layout { display:flex; height:100vh; }
+        .app{display:none;height:100vh;background:#050510}
+        .layout{display:flex;height:100vh}
 
-        /* Left Panel - Visual */
-        .visual-panel {
-            width:350px; min-width:350px;
-            background: linear-gradient(180deg, rgba(10,10,30,0.98) 0%, rgba(20,10,40,0.98) 100%);
-            border-right:1px solid rgba(0,212,255,0.15);
-            display:flex; flex-direction:column; align-items:center;
-            padding:30px 20px; position:relative; overflow:hidden;
-        }
-        .visual-panel::before {
-            content:''; position:absolute; top:0; left:0; right:0; bottom:0;
-            background: radial-gradient(ellipse at 50% 30%, rgba(0,212,255,0.05) 0%, transparent 70%);
-        }
+        /* LEFT: AIRA Visual */
+        .aira-visual{width:380px;min-width:380px;background:linear-gradient(180deg,#080820,#0a0a2a);
+            border-right:1px solid rgba(0,212,255,0.1);display:flex;flex-direction:column;align-items:center;
+            padding:25px 20px;position:relative;overflow:hidden}
+        .aira-visual::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+            background:radial-gradient(ellipse at 50% 20%,rgba(0,212,255,0.04) 0%,transparent 60%);pointer-events:none}
 
-        /* Avatar */
-        .avatar-container {
-            position:relative; margin-top:20px; margin-bottom:20px; z-index:1;
-        }
-        .avatar-ring {
-            width:180px; height:180px; border-radius:50%;
-            background: conic-gradient(from 0deg, #00d4ff, #8a2be2, #00ff88, #00d4ff);
-            padding:4px; animation: ringRotate 4s linear infinite;
-        }
-        @keyframes ringRotate { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-        .avatar-inner {
-            width:100%; height:100%; border-radius:50%;
-            background: linear-gradient(135deg, #1a1a3e, #0f0f23);
-            display:flex; align-items:center; justify-content:center;
-            position:relative; overflow:hidden;
-        }
-        .avatar-face {
-            font-size:80px; z-index:2; animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        /* Robot Avatar */
+        .robot{position:relative;width:220px;height:220px;margin:15px 0;z-index:1}
+        .robot-orbit{position:absolute;top:0;left:0;width:100%;height:100%}
+        .orbit-ring{position:absolute;border-radius:50%;border:1px solid rgba(0,212,255,0.15)}
+        .orbit-ring.r1{top:0;left:0;width:100%;height:100%;animation:spin 8s linear infinite}
+        .orbit-ring.r2{top:10px;left:10px;width:calc(100% - 20px);height:calc(100% - 20px);
+            border-color:rgba(138,43,226,0.15);animation:spin 12s linear infinite reverse}
+        .orbit-ring.r3{top:20px;left:20px;width:calc(100% - 40px);height:calc(100% - 40px);
+            border-color:rgba(0,255,136,0.1);animation:spin 16s linear infinite}
+        .orbit-dot{position:absolute;width:8px;height:8px;border-radius:50%;top:-4px;left:50%;margin-left:-4px}
+        .orbit-dot.d1{background:#00d4ff;box-shadow:0 0 10px #00d4ff}
+        .orbit-dot.d2{background:#8a2be2;box-shadow:0 0 10px #8a2be2}
+        .orbit-dot.d3{background:#00ff88;box-shadow:0 0 10px #00ff88}
 
-        /* Status lights */
-        .status-lights {
-            display:flex; gap:8px; margin:15px 0; z-index:1;
+        .robot-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+            width:120px;height:120px;border-radius:50%;
+            background:radial-gradient(circle at 40% 40%,#1a1a4e,#0a0a2e);
+            border:2px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;
+            box-shadow:0 0 40px rgba(0,212,255,0.2),inset 0 0 30px rgba(0,212,255,0.1)}
+        .robot-core.speaking{animation:speakPulse 0.5s ease-in-out infinite}
+        @keyframes speakPulse{
+            0%,100%{box-shadow:0 0 40px rgba(0,212,255,0.2),inset 0 0 30px rgba(0,212,255,0.1)}
+            50%{box-shadow:0 0 80px rgba(0,212,255,0.5),inset 0 0 50px rgba(0,212,255,0.3)}
         }
-        .status-light {
-            width:10px; height:10px; border-radius:50%;
-            animation: blink 1.5s ease-in-out infinite;
-        }
-        .status-light.green { background:#00ff88; box-shadow:0 0 10px #00ff88; }
-        .status-light.blue { background:#00d4ff; box-shadow:0 0 10px #00d4ff; animation-delay:0.3s; }
-        .status-light.purple { background:#8a2be2; box-shadow:0 0 10px #8a2be2; animation-delay:0.6s; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .robot-face{font-size:55px;transition:all .3s}
 
-        /* Voice Visualizer */
-        .voice-visual {
-            display:flex; align-items:center; justify-content:center;
-            gap:3px; height:50px; margin:15px 0; z-index:1;
-        }
-        .v-bar {
-            width:4px; background:linear-gradient(180deg,#00d4ff,#8a2be2);
-            border-radius:2px; transition:height 0.1s;
-        }
-        .v-bar:nth-child(1) { animation:vw 0.5s ease-in-out infinite 0.0s; }
-        .v-bar:nth-child(2) { animation:vw 0.5s ease-in-out infinite 0.1s; }
-        .v-bar:nth-child(3) { animation:vw 0.5s ease-in-out infinite 0.2s; }
-        .v-bar:nth-child(4) { animation:vw 0.5s ease-in-out infinite 0.3s; }
-        .v-bar:nth-child(5) { animation:vw 0.5s ease-in-out infinite 0.4s; }
-        .v-bar:nth-child(6) { animation:vw 0.5s ease-in-out infinite 0.5s; }
-        .v-bar:nth-child(7) { animation:vw 0.5s ease-in-out infinite 0.6s; }
-        @keyframes vw { 0%,100%{height:10px} 50%{height:40px} }
+        /* Scanning lines */
+        .scan-line{position:absolute;width:100%;height:2px;
+            background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent);
+            animation:scan 3s ease-in-out infinite;z-index:2}
+        @keyframes scan{0%{top:20%;opacity:0}50%{opacity:1}100%{top:80%;opacity:0}}
 
-        /* AIRA name */
-        .aira-name {
-            font-family:'Orbitron',sans-serif; font-size:28px; font-weight:900;
-            background:linear-gradient(90deg,#00d4ff,#8a2be2);
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-            z-index:1; margin-bottom:5px;
-        }
-        .aira-subtitle { color:#666; font-size:13px; z-index:1; margin-bottom:20px; }
+        /* Name */
+        .aira-title{font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;
+            background:linear-gradient(90deg,#00d4ff,#8a2be2);-webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;z-index:1;margin:10px 0 3px}
+        .aira-sub{color:#444;font-size:12px;letter-spacing:3px;text-transform:uppercase;z-index:1;margin-bottom:15px}
 
-        /* Info Cards */
-        .info-cards { width:100%; z-index:1; }
-        .info-card {
-            background:rgba(0,0,0,0.3); border:1px solid rgba(0,212,255,0.1);
-            border-radius:12px; padding:12px 16px; margin-bottom:8px;
-            display:flex; justify-content:space-between; align-items:center;
-        }
-        .info-card .label { font-size:12px; color:#888; text-transform:uppercase; letter-spacing:1px; }
-        .info-card .value { font-family:'Orbitron',sans-serif; font-size:14px; color:#00d4ff; }
-        .info-card .value.green { color:#00ff88; }
+        /* Status bar */
+        .status-row{display:flex;gap:15px;z-index:1;margin-bottom:15px;width:100%;justify-content:center}
+        .stat{display:flex;flex-direction:column;align-items:center;gap:3px}
+        .stat-val{font-family:'Orbitron',sans-serif;font-size:16px;color:#00d4ff}
+        .stat-lbl{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px}
 
-        /* Right Panel - Chat */
-        .chat-panel { flex:1; display:flex; flex-direction:column; }
+        /* Waveform */
+        .waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:40px;z-index:1;margin:10px 0}
+        .wave-bar{width:3px;background:linear-gradient(180deg,#00d4ff,#8a2be2);border-radius:2px;
+            animation:wave .6s ease-in-out infinite}
+        .wave-bar:nth-child(1){animation-delay:0s}.wave-bar:nth-child(2){animation-delay:.08s}
+        .wave-bar:nth-child(3){animation-delay:.16s}.wave-bar:nth-child(4){animation-delay:.24s}
+        .wave-bar:nth-child(5){animation-delay:.32s}.wave-bar:nth-child(6){animation-delay:.4s}
+        .wave-bar:nth-child(7){animation-delay:.48s}.wave-bar:nth-child(8){animation-delay:.56s}
+        .wave-bar:nth-child(9){animation-delay:.64s}
+        @keyframes wave{0%,100%{height:8px}50%{height:32px}}
 
-        .chat-header {
-            padding:15px 25px; background:rgba(10,10,26,0.95);
-            border-bottom:1px solid rgba(0,212,255,0.15);
-            display:flex; justify-content:space-between; align-items:center;
-        }
-        .chat-header h2 { font-family:'Orbitron',sans-serif; font-size:18px; color:#fff; }
-        .header-actions { display:flex; gap:10px; }
-        .header-btn {
-            padding:8px 16px; background:rgba(0,212,255,0.1);
-            border:1px solid rgba(0,212,255,0.3); border-radius:20px;
-            color:#00d4ff; font-size:13px; cursor:pointer; transition:all 0.3s;
-        }
-        .header-btn:hover { background:rgba(0,212,255,0.2); }
+        /* Device connections */
+        .devices{width:100%;z-index:1;margin-top:auto}
+        .devices-title{font-size:11px;color:#444;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;text-align:center}
+        .device-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+        .device{background:rgba(0,0,0,0.3);border:1px solid rgba(0,212,255,0.1);border-radius:10px;
+            padding:8px 10px;display:flex;align-items:center;gap:8px;font-size:12px;color:#888}
+        .device .dot{width:6px;height:6px;border-radius:50%;background:#333}
+        .device .dot.on{background:#00ff88;box-shadow:0 0 6px #00ff88}
 
-        .chat-messages {
-            flex:1; padding:20px; overflow-y:auto;
-            display:flex; flex-direction:column; gap:12px;
-        }
-        .message {
-            max-width:75%; padding:14px 18px; border-radius:18px;
-            animation:slideIn 0.3s ease; line-height:1.5;
-        }
-        @keyframes slideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-        .message.user {
-            align-self:flex-end; background:linear-gradient(135deg,#00d4ff,#0099cc);
-            border-bottom-right-radius:5px;
-        }
-        .message.aira {
-            align-self:flex-start; background:rgba(138,43,226,0.2);
-            border:1px solid rgba(138,43,226,0.3); border-bottom-left-radius:5px;
-        }
-        .msg-time { font-size:10px; color:#555; margin-top:4px; }
+        /* RIGHT: Chat */
+        .chat-panel{flex:1;display:flex;flex-direction:column;background:#080818}
+        .chat-top{padding:12px 25px;background:rgba(10,10,30,0.95);
+            border-bottom:1px solid rgba(0,212,255,0.1);display:flex;justify-content:space-between;align-items:center}
+        .chat-top h2{font-family:'Orbitron',sans-serif;font-size:16px;color:#aaa}
+        .top-btns{display:flex;gap:8px}
+        .top-btn{padding:6px 14px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);
+            border-radius:16px;color:#00d4ff;font-size:12px;cursor:pointer;transition:all .3s;font-family:'Rajdhani',sans-serif}
+        .top-btn:hover{background:rgba(0,212,255,0.15)}
 
-        .chat-input-area {
-            padding:15px 25px; background:rgba(10,10,26,0.95);
-            border-top:1px solid rgba(0,212,255,0.15);
-            display:flex; gap:12px; align-items:center;
-        }
-        .chat-input-area input {
-            flex:1; padding:14px 20px; background:rgba(0,0,0,0.4);
-            border:1px solid rgba(0,212,255,0.2); border-radius:25px;
-            color:#fff; font-family:'Rajdhani',sans-serif; font-size:16px; outline:none;
-        }
-        .chat-input-area input:focus { border-color:#00d4ff; }
-        .chat-input-area input::placeholder { color:#555; }
-        .icon-btn {
-            width:48px; height:48px; border-radius:50%; border:none;
-            cursor:pointer; display:flex; align-items:center; justify-content:center;
-            transition:all 0.3s;
-        }
-        .send-btn { background:linear-gradient(135deg,#00d4ff,#0099cc); color:#fff; }
-        .send-btn:hover { transform:scale(1.1); box-shadow:0 0 20px rgba(0,212,255,0.5); }
-        .mic-btn { background:rgba(255,0,0,0.15); border:2px solid #ff4444; color:#ff4444; }
-        .mic-btn.recording { animation:recPulse 1s infinite; background:rgba(255,0,0,0.4); }
-        @keyframes recPulse { 0%,100%{box-shadow:0 0 15px rgba(255,0,0,0.5)} 50%{box-shadow:0 0 30px rgba(255,0,0,0.8)} }
+        .chat-msgs{flex:1;padding:20px 25px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+        .msg{max-width:72%;padding:14px 18px;border-radius:18px;animation:fadeIn .3s ease;line-height:1.6;font-size:15px}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .msg.user{align-self:flex-end;background:linear-gradient(135deg,#00d4ff,#0088bb);border-bottom-right-radius:4px}
+        .msg.bot{align-self:flex-start;background:rgba(138,43,226,0.15);border:1px solid rgba(138,43,226,0.2);
+            border-bottom-left-radius:4px}
+        .msg-time{font-size:10px;color:#444;margin-top:4px}
+        .typing{display:none;align-self:flex-start;padding:14px 18px}
+        .typing span{display:inline-block;width:8px;height:8px;background:#00d4ff;border-radius:50%;
+            margin:0 2px;animation:bounce .6s ease-in-out infinite}
+        .typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .visual-panel { display:none; }
-            .main-layout { flex-direction:column; }
-        }
+        .chat-bottom{padding:12px 25px;background:rgba(10,10,30,0.95);
+            border-top:1px solid rgba(0,212,255,0.1);display:flex;gap:10px;align-items:center}
+        .chat-bottom input{flex:1;padding:14px 20px;background:rgba(0,0,0,0.4);
+            border:1px solid rgba(0,212,255,0.15);border-radius:25px;color:#fff;font-size:15px;
+            outline:none;font-family:'Rajdhani',sans-serif}
+        .chat-bottom input:focus{border-color:rgba(0,212,255,0.4)}
+        .chat-bottom input::placeholder{color:#444}
+        .ibtn{width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;transition:all .3s}
+        .ibtn.send{background:linear-gradient(135deg,#00d4ff,#0088bb);color:#fff}
+        .ibtn.send:hover{box-shadow:0 0 25px rgba(0,212,255,0.4)}
+        .ibtn.mic{background:rgba(255,50,50,0.1);border:2px solid rgba(255,50,50,0.4);color:#ff3333}
+        .ibtn.mic.on{animation:micPulse 1s infinite;background:rgba(255,50,50,0.3)}
+        @keyframes micPulse{0%,100%{box-shadow:0 0 15px rgba(255,50,50,0.3)}50%{box-shadow:0 0 30px rgba(255,50,50,0.6)}}
+        .ibtn.speak{background:rgba(0,255,136,0.1);border:2px solid rgba(0,255,136,0.3);color:#00ff88}
+
+        @media(max-width:900px){.aira-visual{display:none}}
     </style>
 </head>
 <body>
     <!-- LOGIN -->
-    <div class="login-screen" id="loginScreen">
+    <div class="login" id="loginScreen">
         <div class="login-box">
-            <div class="login-avatar"></div>
+            <div class="login-avatar">
+                <div class="ring"><div class="inner">👩‍💻</div></div>
+            </div>
             <h1>AIRA</h1>
-            <p class="subtitle">Artificial Intelligence Research Assistant</p>
-            <input type="password" class="login-input" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key==='Enter')login()">
-            <button class="login-btn" onclick="login()">Access AIRA</button>
-            <div class="login-error" id="loginError">Wrong password. Try again.</div>
+            <p class="sub">ARTIFICIAL INTELLIGENCE RESEARCH ASSISTANT</p>
+            <input type="password" class="login-input" id="pwdInput" placeholder="PASSWORD" onkeypress="if(event.key==='Enter')doLogin()">
+            <button class="login-btn" onclick="doLogin()">ENTER</button>
+            <div class="login-err" id="loginErr">ACCESS DENIED</div>
         </div>
     </div>
 
-    <!-- MAIN APP -->
+    <!-- APP -->
     <div class="app" id="app">
-        <div class="main-layout">
-            <!-- Left: Visual Panel -->
-            <div class="visual-panel">
-                <div class="avatar-container">
-                    <div class="avatar-ring">
-                        <div class="avatar-inner">
-                            <div class="avatar-face">👩‍💻</div>
-                        </div>
+        <div class="layout">
+            <!-- Left: Visual -->
+            <div class="aira-visual">
+                <div class="robot">
+                    <div class="robot-orbit">
+                        <div class="orbit-ring r1"><div class="orbit-dot d1"></div></div>
+                        <div class="orbit-ring r2"><div class="orbit-dot d2"></div></div>
+                        <div class="orbit-ring r3"><div class="orbit-dot d3"></div></div>
+                    </div>
+                    <div class="scan-line"></div>
+                    <div class="robot-core" id="robotCore">
+                        <div class="robot-face" id="robotFace">🤖</div>
                     </div>
                 </div>
 
-                <div class="aira-name">AIRA</div>
-                <div class="aira-subtitle">AI Research Assistant • v2.0</div>
+                <div class="aira-title">AIRA</div>
+                <div class="aira-sub">AI RESEARCH ASSISTANT</div>
 
-                <div class="status-lights">
-                    <div class="status-light green"></div>
-                    <div class="status-light blue"></div>
-                    <div class="status-light purple"></div>
-                    <div class="status-light green"></div>
-                    <div class="status-light blue"></div>
+                <div class="status-row">
+                    <div class="stat"><div class="stat-val" id="sStatus">ONLINE</div><div class="stat-lbl">Status</div></div>
+                    <div class="stat"><div class="stat-val" id="sBrain">GROQ</div><div class="stat-lbl">Brain</div></div>
+                    <div class="stat"><div class="stat-val" id="sMsgs">0</div><div class="stat-lbl">Messages</div></div>
                 </div>
 
-                <div class="voice-visual" id="voiceVisual">
-                    <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
-                    <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
-                    <div class="v-bar"></div>
+                <div class="waveform">
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
                 </div>
 
-                <div class="info-cards">
-                    <div class="info-card">
-                        <span class="label">Status</span>
-                        <span class="value green">ONLINE</span>
-                    </div>
-                    <div class="info-card">
-                        <span class="label">Brain</span>
-                        <span class="value">GROQ AI</span>
-                    </div>
-                    <div class="info-card">
-                        <span class="label">Messages</span>
-                        <span class="value" id="msgCount">0</span>
-                    </div>
-                    <div class="info-card">
-                        <span class="label">Session</span>
-                        <span class="value" id="sessionTime">00:00</span>
+                <div class="devices">
+                    <div class="devices-title">Connected Devices</div>
+                    <div class="device-grid">
+                        <div class="device"><div class="dot on"></div>PC Desktop</div>
+                        <div class="device"><div class="dot on"></div>Phone</div>
+                        <div class="device"><div class="dot on"></div>Cloud Server</div>
+                        <div class="device"><div class="dot"></div>IoT Devices</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right: Chat Panel -->
+            <!-- Right: Chat -->
             <div class="chat-panel">
-                <div class="chat-header">
-                    <h2>💬 Chat with AIRA</h2>
-                    <div class="header-actions">
-                        <button class="header-btn" onclick="speakLast()">🔊 Speak</button>
-                        <button class="header-btn" onclick="clearChat()">🗑️ Clear</button>
+                <div class="chat-top">
+                    <h2>💬 CONVERSATION</h2>
+                    <div class="top-btns">
+                        <button class="top-btn" onclick="speakLast()">🔊 SPEAK</button>
+                        <button class="top-btn" onclick="clearChat()">🗑 CLEAR</button>
                     </div>
                 </div>
 
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message aira">
-                        <div>Hey Joss! 🌟 I'm AIRA, your personal AI assistant. I'm powered by Groq AI and I remember everything we've worked on together. What can I do for you today?</div>
+                <div class="chat-msgs" id="chatMsgs">
+                    <div class="msg bot">
+                        <div>Hey Joss! 🌟 I'm AIRA — your AI research assistant. I'm powered by Groq AI, I remember everything we've worked on, and I can speak to you with a female voice. What can I do for you today?</div>
                         <div class="msg-time">Just now</div>
                     </div>
+                    <div class="typing" id="typing"><span></span><span></span><span></span></div>
                 </div>
 
-                <div class="chat-input-area">
-                    <button class="icon-btn mic-btn" id="micBtn" onclick="toggleMic()">
+                <div class="chat-bottom">
+                    <button class="ibtn mic" id="micBtn" onclick="toggleMic()">
                         <span class="material-icons">mic</span>
                     </button>
-                    <input type="text" id="userInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage()">
-                    <button class="icon-btn send-btn" onclick="sendMessage()">
+                    <input type="text" id="chatInput" placeholder="Ask AIRA anything..." onkeypress="if(event.key==='Enter')sendMsg()">
+                    <button class="ibtn speak" onclick="speakLast()">
+                        <span class="material-icons">volume_up</span>
+                    </button>
+                    <button class="ibtn send" onclick="sendMsg()">
                         <span class="material-icons">send</span>
                     </button>
                 </div>
@@ -316,130 +250,95 @@
     </div>
 
     <script>
-        let pwd = '';
-        let msgCount = 0;
-        let startTime = Date.now();
-        let isRecording = false;
-        let recognition = null;
-        let lastResponse = '';
+    let PWD='',msgN=0,recording=false,rec=null,lastResp='',speaking=false;
+    const synth=window.speechSynthesis;
 
-        // Session timer
-        setInterval(() => {
-            const e = Math.floor((Date.now()-startTime)/1000);
-            const m = Math.floor(e/60).toString().padStart(2,'0');
-            const s = (e%60).toString().padStart(2,'0');
-            document.getElementById('sessionTime').textContent = `${m}:${s}`;
-        }, 1000);
+    // === LOGIN ===
+    function doLogin(){
+        const p=document.getElementById('pwdInput').value;
+        if(!p)return;
+        fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:p})})
+        .then(r=>{if(r.ok){PWD=p;document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initVoice()}
+        else{document.getElementById('loginErr').style.display='block';document.getElementById('pwdInput').value=''}});
+    }
 
-        // Login
-        function login() {
-            const p = document.getElementById('passwordInput').value;
-            if (!p) return;
-            fetch('/api/auth', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({password: p})
-            }).then(r => {
-                if (r.ok) {
-                    pwd = p;
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
-                } else {
-                    document.getElementById('loginError').style.display = 'block';
-                    document.getElementById('passwordInput').value = '';
-                }
-            });
+    // === VOICE ===
+    function initVoice(){
+        if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
+            const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+            rec=new SR();rec.continuous=false;rec.interimResults=false;rec.lang='en-US';
+            rec.onresult=e=>{document.getElementById('chatInput').value=e.results[0][0].transcript;sendMsg()};
+            rec.onend=()=>{recording=false;document.getElementById('micBtn').classList.remove('on')};
         }
+    }
+    function toggleMic(){
+        if(!rec){addBot('Voice not supported. Type your message.');return}
+        if(recording){rec.stop()}
+        else{rec.start();recording=true;document.getElementById('micBtn').classList.add('on');addBot('🎤 Listening...')}
+    }
 
-        // Speech Recognition
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SR();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = 'en-US';
-            recognition.onresult = (e) => {
-                document.getElementById('userInput').value = e.results[0][0].transcript;
-                sendMessage();
-            };
-            recognition.onend = () => {
-                isRecording = false;
-                document.getElementById('micBtn').classList.remove('recording');
-            };
-        }
+    // === CHAT ===
+    function sendMsg(){
+        const inp=document.getElementById('chatInput');
+        const m=inp.value.trim();if(!m)return;
+        addUser(m);inp.value='';msgN++;updateCount();
+        document.getElementById('typing').style.display='flex';
+        document.getElementById('chatMsgs').scrollTop=document.getElementById('chatMsgs').scrollHeight;
 
-        function toggleMic() {
-            if (!recognition) { addMsg('aira', 'Voice not supported in this browser.'); return; }
-            if (isRecording) { recognition.stop(); }
-            else { recognition.start(); isRecording = true; document.getElementById('micBtn').classList.add('recording'); addMsg('aira', '🎤 Listening...'); }
-        }
+        fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:m,password:PWD})})
+        .then(r=>r.json()).then(d=>{
+            document.getElementById('typing').style.display='none';
+            addBot(d.response);lastResp=d.response;msgN++;updateCount();
+            document.getElementById('robotFace').textContent='😊';
+            speak(d.response);
+            setTimeout(()=>{document.getElementById('robotFace').textContent='🤖'},3000);
+        }).catch(()=>{
+            document.getElementById('typing').style.display='none';
+            addBot('Connection error. Please try again.');
+        });
+    }
 
-        function sendMessage() {
-            const input = document.getElementById('userInput');
-            const msg = input.value.trim();
-            if (!msg) return;
-            addMsg('user', msg);
-            input.value = '';
-            msgCount++;
-            document.getElementById('msgCount').textContent = msgCount;
+    function addUser(t){
+        const c=document.getElementById('chatMsgs');
+        const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const d=document.createElement('div');d.className='msg user';
+        d.innerHTML=`<div>${t}</div><div class="msg-time">${time}</div>`;
+        c.insertBefore(d,document.getElementById('typing'));c.scrollTop=c.scrollHeight;
+    }
+    function addBot(t){
+        const c=document.getElementById('chatMsgs');
+        const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const d=document.createElement('div');d.className='msg bot';
+        d.innerHTML=`<div>${t}</div><div class="msg-time">${time}</div>`;
+        c.insertBefore(d,document.getElementById('typing'));c.scrollTop=c.scrollHeight;
+    }
+    function updateCount(){document.getElementById('sMsgs').textContent=msgN}
 
-            fetch('/api/chat', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({message: msg, password: pwd})
-            }).then(r => r.json()).then(data => {
-                addMsg('aira', data.response);
-                lastResponse = data.response;
-                msgCount++;
-                document.getElementById('msgCount').textContent = msgCount;
-                // Auto speak
-                speak(data.response);
-            }).catch(() => {
-                addMsg('aira', 'Error connecting. Please try again.');
-            });
-        }
+    // === TTS ===
+    function speak(text){
+        if(!synth)return;
+        synth.cancel();
+        const u=new SpeechSynthesisUtterance(text);
+        u.rate=1.05;u.pitch=1.15;u.volume=1;
+        const voices=synth.getVoices();
+        const fem=voices.find(v=>/female|samantha|victoria|zira|google.*female|karen|moira|tessa/i.test(v.name));
+        if(fem)u.voice=fem;
+        u.onstart=()=>{speaking=true;document.getElementById('robotCore').classList.add('speaking');document.getElementById('robotFace').textContent='🗣️'};
+        u.onend=()=>{speaking=false;document.getElementById('robotCore').classList.remove('speaking');document.getElementById('robotFace').textContent='🤖'};
+        synth.speak(u);
+    }
+    function speakLast(){if(lastResp)speak(lastResp)}
 
-        function addMsg(sender, text) {
-            const c = document.getElementById('chatMessages');
-            const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-            const d = document.createElement('div');
-            d.className = `message ${sender}`;
-            d.innerHTML = `<div>${text}</div><div class="msg-time">${t}</div>`;
-            c.appendChild(d);
-            c.scrollTop = c.scrollHeight;
-        }
+    function clearChat(){
+        document.getElementById('chatMsgs').innerHTML='<div class="typing" id="typing"><span></span><span></span><span></span></div>';
+        addBot('Fresh start! 🔄 What would you like to do?');
+        fetch('/api/clear-memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:PWD})});
+        msgN=0;updateCount();
+    }
 
-        function speak(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(text);
-                u.rate = 1.0;
-                u.pitch = 1.1;
-                u.volume = 1.0;
-                // Try to find female voice
-                const voices = window.speechSynthesis.getVoices();
-                const female = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Google UK English Female'));
-                if (female) u.voice = female;
-                window.speechSynthesis.speak(u);
-            }
-        }
-
-        function speakLast() {
-            if (lastResponse) speak(lastResponse);
-        }
-
-        function clearChat() {
-            document.getElementById('chatMessages').innerHTML = '';
-            addMsg('aira', 'Fresh start! 🔄 How can I help you?');
-            fetch('/api/clear-memory', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pwd})});
-            msgCount = 0;
-            document.getElementById('msgCount').textContent = '0';
-        }
-
-        // Load voices
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-        }
+    // Load voices
+    if(synth)synth.onvoiceschanged=()=>synth.getVoices();
     </script>
 </body>
 </html>
