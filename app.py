@@ -16,7 +16,7 @@ app = Flask(__name__,
             template_folder=os.path.join(AIRA_DIR, 'ui', 'templates'),
             static_folder=os.path.join(AIRA_DIR, 'ui', 'static'))
 
-AIRA_PASSWORD = os.environ.get('AIRA_PASSWORD', 'joss2004')
+AIRA_PASSWORD = 'Jossloveaira@123'
 brain = AIRABrain()
 automations = AIRAAutomations()
 
