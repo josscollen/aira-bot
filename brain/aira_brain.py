@@ -63,7 +63,7 @@ RULES:
                 response = requests.post(
                     self.groq_url,
                     headers={"Authorization": f"Bearer {self.groq_key}", "Content-Type": "application/json"},
-                    json={"model": "llama-3.1-8b-instant", "messages": messages, "max_tokens": 1024, "temperature": 0.7},
+                    json={"model": "llama-3.1-8b-instant", "messages": messages, "max_tokens": 256, "temperature": 0.5},
                     timeout=30
                 )
                 
