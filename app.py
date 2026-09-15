@@ -4,14 +4,9 @@
 from flask import Flask, render_template, request, jsonify, send_file
 import os
 import sys
-import hashlib
 
-# Get the directory where this script is located
 AIRA_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Add modules to path
 sys.path.insert(0, os.path.join(AIRA_DIR, 'brain'))
-sys.path.insert(0, os.path.join(AIRA_DIR, 'voice'))
 sys.path.insert(0, os.path.join(AIRA_DIR, 'automations'))
 
 from aira_brain import AIRABrain
@@ -21,10 +16,7 @@ app = Flask(__name__,
             template_folder=os.path.join(AIRA_DIR, 'ui', 'templates'),
             static_folder=os.path.join(AIRA_DIR, 'ui', 'static'))
 
-# Password protection - only you know this
 AIRA_PASSWORD = os.environ.get('AIRA_PASSWORD', 'joss2004')
-
-# Initialize AIRA components
 brain = AIRABrain()
 automations = AIRAAutomations()
 
@@ -34,39 +26,43 @@ def home():
 
 @app.route('/api/auth', methods=['POST'])
 def auth():
-    """Check password"""
     data = request.json
-    password = data.get('password', '')
-    if password == AIRA_PASSWORD:
+    if data.get('password', '') == AIRA_PASSWORD:
         return jsonify({'status': 'authenticated'})
-    return jsonify({'status': 'failed', 'message': 'Wrong password'}), 401
+    return jsonify({'status': 'failed'}), 401
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
     data = request.json
+    if data.get('password', '') != AIRA_PASSWORD:
+        return jsonify({'response': 'Access denied.', 'status': 'unauthorized'}), 401
+    
     user_message = data.get('message', '')
-    password = data.get('password', '')
-    
-    # Check password
-    if password != AIRA_PASSWORD:
-        return jsonify({'response': 'Access denied. Wrong password.', 'status': 'unauthorized'}), 401
-    
     response = brain.think(user_message)
     command_result = process_command(user_message)
+    
     return jsonify({
         'response': response,
         'command': command_result,
         'status': 'success'
     })
 
+@app.route('/api/voice-speak', methods=['POST'])
+def voice_speak():
+    """Return text for browser TTS"""
+    data = request.json
+    if data.get('password', '') != AIRA_PASSWORD:
+        return jsonify({'status': 'unauthorized'}), 401
+    return jsonify({'text': data.get('text', ''), 'status': 'success'})
+
 @app.route('/api/status')
 def status():
     return jsonify({
         'name': 'AIRA',
-        'version': '1.0.0',
+        'version': '2.0.0',
         'status': 'online',
         'creator': 'Joss Collen',
-        'brain': 'Hermes + OmniRoute',
+        'brain': 'Groq AI',
         'protected': True
     })
 
@@ -90,14 +86,8 @@ def process_command(message):
     elif 'search' in msg:
         query = msg.replace('search', '').replace('for', '').strip()
         return automations.search_google(query)
-    elif 'screenshot' in msg:
-        return automations.take_screenshot()
     return None
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    print("=" * 50)
-    print("  AIRA - Password Protected")
-    print("  Only authorized users can access")
-    print("=" * 50)
     app.run(host='0.0.0.0', port=port, debug=False)
