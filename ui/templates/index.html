@@ -6,6 +6,8 @@
     <title>AIRA</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:'Rajdhani',sans-serif;background:#050510;color:#fff;height:100vh;overflow:hidden}
@@ -234,15 +236,11 @@
                 </div>
 
                 <div class="chat-bottom">
-                    <button class="ibtn mic" id="micBtn" onclick="toggleMic()">
-                        <span class="material-icons">mic</span>
+                    <button class="ibtn mic" id="micBtn" onclick="toggleMic()">🎤
                     </button>
                     <input type="text" id="chatInput" placeholder="Ask AIRA anything..." onkeypress="if(event.key==='Enter')sendMsg()">
-                    <button class="ibtn speak" onclick="speakLast()">
-                        <span class="material-icons">volume_up</span>
-                    </button>
-                    <button class="ibtn send" onclick="sendMsg()">
-                        <span class="material-icons">send</span>
+                    <button class="ibtn speak" onclick="speakLast()">🔊</button>
+                    <button class="ibtn send" onclick="sendMsg()"> ➤ 
                     </button>
                 </div>
             </div>
