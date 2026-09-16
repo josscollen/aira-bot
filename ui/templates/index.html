@@ -42,6 +42,9 @@
         .input-bar .send{width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,#00d4ff,#8a2be2);color:#fff;font-size:16px;cursor:pointer}
         .clear-btn{position:absolute;top:16px;right:16px;z-index:11;padding:5px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;color:#444;font-size:11px;cursor:pointer}
         .clear-btn:hover{color:#ff4444}
+        /* STOP button - shows when listening */
+        .stop-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,80px);z-index:12;width:70px;height:70px;border-radius:50%;border:2px solid rgba(255,60,60,0.4);background:rgba(255,40,40,0.15);color:#ff4444;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;display:none;transition:all .3s}
+        .stop-btn:active{transform:translate(-50%,80px) scale(0.9)}
         .mic-err{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;background:rgba(0,0,0,0.85);padding:20px 30px;border-radius:16px;border:1px solid rgba(255,170,0,0.3);color:#ffaa00;font-size:13px;text-align:center;display:none;max-width:280px}
     </style>
 </head>
@@ -59,7 +62,8 @@
     <div class="app" id="app">
         <canvas id="orbCanvas"></canvas>
         <button class="clear-btn" onclick="clearChat()">CLEAR</button>
-        <div class="mic-err" id="micErr">🎤 Mic blocked. Go to browser Settings → Site Settings → Microphone → Allow for this site.</div>
+        <button class="stop-btn" id="stopBtn" onclick="stopListening()">STOP</button>
+        <div class="mic-err" id="micErr">🎤 Mic blocked. Allow mic in browser Settings → Site Settings → Microphone.</div>
 
         <div class="center-label" id="centerLabel">
             <div class="state" id="stateLabel">READY</div>
@@ -77,6 +81,7 @@
     <script>
     let PWD='',recording=false,speaking=false,currentAudio=null;
     let audioCtx=null,analyser=null,micStream=null,speechRec=null;
+    let listenTimer=null; // Safety timeout
 
     // ===== ORB =====
     const canvas=document.getElementById('orbCanvas');
@@ -104,8 +109,7 @@
             this.y=this.by*(r/orbRadius)+Math.cos(this.angle*0.7)*2;
             this.z=this.bz*(r/orbRadius);
             const c=Math.cos(0.003),s=Math.sin(0.003),rx=this.x*c-this.z*s;
-            this.z=this.x*s+this.z*c;this.x=rx;
-            this.alpha=0.2+audioLevel*0.5;
+            this.z=this.x*s+this.z*c;this.x=rx;this.alpha=0.2+audioLevel*0.5;
         }
         draw(ctx){
             const sc=300/(300+this.z),px=cx+this.x*sc,py=cy+this.y*sc,sz=this.size*sc;
@@ -120,19 +124,16 @@
     function animate(t){
         requestAnimationFrame(animate);ctx.clearRect(0,0,W,H);
         if(orbState==='idle')audioLevel*=0.92;
-        // Glow
         const g=ctx.createRadialGradient(cx,cy,0,cx,cy,orbRadius*1.8);
         const a=0.05+audioLevel*0.12;
         if(orbState==='listening'){g.addColorStop(0,`rgba(0,212,255,${a})`);g.addColorStop(0.5,`rgba(138,43,226,${a*0.4})`)}
         else if(orbState==='speaking'){g.addColorStop(0,`rgba(138,43,226,${a})`);g.addColorStop(0.5,`rgba(0,255,136,${a*0.4})`)}
         else{g.addColorStop(0,`rgba(0,212,255,${a})`);g.addColorStop(0.5,'rgba(138,43,226,0)')}
         g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-        // Connections
         for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){
             const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dz=particles[i].z-particles[j].z;
             const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
-            if(dist<45){
-                const al=(1-dist/45)*0.06*(1+audioLevel*2);
+            if(dist<45){const al=(1-dist/45)*0.06*(1+audioLevel*2);
                 const s1=300/(300+particles[i].z),s2=300/(300+particles[j].z);
                 ctx.beginPath();ctx.moveTo(cx+particles[i].x*s1,cy+particles[i].y*s1);
                 ctx.lineTo(cx+particles[j].x*s2,cy+particles[j].y*s2);
@@ -158,17 +159,18 @@
         .then(r=>{if(r.ok){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio()}else localStorage.removeItem('jenna_pwd')})}
     });
 
-    // ===== MIC - Uses browser speech recognition (FREE, no API key) =====
+    // ===== MIC =====
     function initAudio(){
         try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256}catch(e){}
         
         const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-        if(!SR){addLog('jenna','Voice not supported. Type below.');return}
+        if(!SR){addLog('jenna','🎤 Voice not supported. Use text input below.');return}
         
         speechRec=new SR();
         speechRec.continuous=false;
         speechRec.interimResults=true;
         speechRec.lang='en-US';
+        speechRec.maxAlternatives=1;
         
         speechRec.onresult=e=>{
             let final='',interim='';
@@ -181,17 +183,21 @@
         };
         
         speechRec.onend=()=>{
-            if(recording){
+            clearTimeout(listenTimer);
+            const wasRecording=recording;
+            recording=false;orbState='idle';audioLevel=0;
+            document.getElementById('stopBtn').style.display='none';
+            document.getElementById('centerLabel').className='center-label';
+            
+            if(wasRecording){
                 const text=document.getElementById('transcript').textContent.trim();
-                recording=false;orbState='idle';audioLevel=0;
-                document.getElementById('centerLabel').className='center-label';
                 if(text&&text!=='Speak now...'){
                     addLog('user',text);
                     document.getElementById('transcript').textContent='';
                     document.getElementById('stateLabel').textContent='THINKING';
                     getResponse(text);
                 }else{
-                    addLog('jenna','I didn\'t catch that. Try again or type below.');
+                    addLog('jenna','I didn\'t catch that. Tap orb again or type below.');
                     document.getElementById('stateLabel').textContent='READY';
                     document.getElementById('tapHint').style.display='block';
                 }
@@ -200,9 +206,12 @@
         };
         
         speechRec.onerror=e=>{
+            clearTimeout(listenTimer);
             console.log('Speech error:',e.error);
             recording=false;orbState='idle';audioLevel=0;
+            document.getElementById('stopBtn').style.display='none';
             document.getElementById('centerLabel').className='center-label';
+            
             if(e.error==='not-allowed'||e.error==='service-not-allowed'){
                 document.getElementById('micErr').style.display='block';
                 setTimeout(()=>document.getElementById('micErr').style.display='none',6000);
@@ -215,11 +224,14 @@
         };
     }
 
-    async function toggleMic(){
+    function toggleMic(){
         if(speaking){stopSpeaking();return}
-        if(recording){recording=false;if(speechRec)try{speechRec.stop()}catch(e){}return}
-        if(!speechRec){addLog('jenna','Voice not supported. Type below.');return}
-        
+        if(recording){stopListening();return}
+        if(!speechRec){addLog('jenna','🎤 Voice not supported. Type below.');return}
+        startListening();
+    }
+
+    async function startListening(){
         try{micStream=await navigator.mediaDevices.getUserMedia({audio:true})}
         catch(e){
             document.getElementById('micErr').style.display='block';
@@ -227,27 +239,44 @@
             return;
         }
         
-        if(audioCtx&&analyser){try{analyser.connect(audioCtx.destination)}catch(e){}}
-        
         recording=true;orbState='listening';
         document.getElementById('stateLabel').textContent='LISTENING';
         document.getElementById('tapHint').style.display='none';
+        document.getElementById('stopBtn').style.display='block';
         document.getElementById('centerLabel').className='center-label listening';
         document.getElementById('transcript').textContent='Speak now...';
         
-        if(micStream&&audioCtx&&analyser){try{const s=audioCtx.createMediaStreamSource(micStream);s.connect(analyser);updLevel()}catch(e){}}
+        // SAFETY TIMEOUT: auto-stop after 15 seconds
+        clearTimeout(listenTimer);
+        listenTimer=setTimeout(()=>{
+            if(recording){
+                const text=document.getElementById('transcript').textContent.trim();
+                stopListening();
+                if(text&&text!=='Speak now...'){
+                    addLog('user',text);document.getElementById('transcript').textContent='';
+                    document.getElementById('stateLabel').textContent='THINKING';
+                    getResponse(text);
+                }else{
+                    addLog('jenna','⏰ Timed out. Tap orb again or type below.');
+                    document.getElementById('stateLabel').textContent='READY';
+                    document.getElementById('tapHint').style.display='block';
+                }
+            }
+        },15000);
         
-        try{speechRec.start()}catch(e){console.log(e);recording=false;orbState='idle';
+        try{speechRec.start()}catch(e){
+            console.log(e);recording=false;orbState='idle';
+            document.getElementById('stopBtn').style.display='none';
             document.getElementById('stateLabel').textContent='READY';
             document.getElementById('tapHint').style.display='block';
-            document.getElementById('centerLabel').className='center-label'}
+            document.getElementById('centerLabel').className='center-label';
+        }
     }
 
-    function updLevel(){
-        if(!analyser||!recording)return;
-        const d=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(d);
-        let s=0;for(let i=0;i<d.length;i++)s+=d[i];audioLevel=(s/d.length)/255;
-        requestAnimationFrame(updLevel);
+    function stopListening(){
+        recording=false;
+        clearTimeout(listenTimer);
+        try{speechRec.stop()}catch(e){}
     }
 
     // ===== CHAT =====
