@@ -1,25 +1,22 @@
-# AIRA - Artificial Intelligence Research Assistant
+# AURA — Artificial Intelligence Research Assistant
 
-Created by Joss Collen
+Built by Joss Collen (Shivam Prasad Mahto)
 
-## Features
-- 🗣️ Female voice (pyttsx3)
-- 🖱️ Desktop control (PyAutoGUI)
-- 🌐 Browser automation
-- 💬 Chat interface
-- 🎨 Futuristic UI
+## What is Aura?
+Aura is a personal AI assistant with:
+- 🎙️ Female voice (edge-tts Microsoft Neural)
+- 🧠 Groq AI brain (Llama 3.1)
+- 🌐 Browser automation (browser-use)
+- 🔒 Password protected
+- 📱 Works on phone
+- ⏰ Reminders & notes
+- 🎨 Siri-style particle orb
 
-## How to Run
-1. Double-click `START.bat`
-2. Open http://localhost:5000
-3. Start chatting!
+## Two AIRAs
+- **AIRA** (Telegram) — The brain, does heavy work
+- **Aura** (Web App) — The face, talks to you on your phone
 
-## Tech Stack
-- Python + Flask
-- pyttsx3 (voice)
-- PyAutoGUI (desktop control)
-- HTML/CSS/JS (UI)
+They communicate and work together.
 
-## Connect
-- GitHub: github.com/josscollen
-- LinkedIn: linkedin.com/in/shivam-prasad-mahto-1041192ab
+## Deploy
+Already deployed on Render: https://aira-bot.onrender.com
