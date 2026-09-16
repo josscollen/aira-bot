@@ -42,9 +42,11 @@
         .input-bar .send{width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,#00d4ff,#8a2be2);color:#fff;font-size:16px;cursor:pointer}
         .clear-btn{position:absolute;top:16px;right:16px;z-index:11;padding:5px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;color:#444;font-size:11px;cursor:pointer}
         .clear-btn:hover{color:#ff4444}
-        /* STOP button - shows when listening */
-        .stop-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,80px);z-index:12;width:70px;height:70px;border-radius:50%;border:2px solid rgba(255,60,60,0.4);background:rgba(255,40,40,0.15);color:#ff4444;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;display:none;transition:all .3s}
-        .stop-btn:active{transform:translate(-50%,80px) scale(0.9)}
+        /* STOP button - BIG and obvious */
+        .stop-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,90px);z-index:12;width:90px;height:90px;border-radius:50%;border:3px solid rgba(255,60,60,0.6);background:rgba(255,40,40,0.25);color:#ff4444;font-size:14px;font-weight:700;letter-spacing:2px;cursor:pointer;display:none;transition:all .3s;box-shadow:0 0 30px rgba(255,40,40,0.2)}
+        .stop-btn:active{transform:translate(-50%,90px) scale(0.9)}
+        /* Countdown timer */
+        .countdown{position:absolute;top:50%;left:50%;transform:translate(-50%,160px);z-index:12;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;display:none}
         .mic-err{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;background:rgba(0,0,0,0.85);padding:20px 30px;border-radius:16px;border:1px solid rgba(255,170,0,0.3);color:#ffaa00;font-size:13px;text-align:center;display:none;max-width:280px}
     </style>
 </head>
@@ -63,6 +65,7 @@
         <canvas id="orbCanvas"></canvas>
         <button class="clear-btn" onclick="clearChat()">CLEAR</button>
         <button class="stop-btn" id="stopBtn" onclick="stopListening()">STOP</button>
+        <div class="countdown" id="countdown"></div>
         <div class="mic-err" id="micErr">🎤 Mic blocked. Allow mic in browser Settings → Site Settings → Microphone.</div>
 
         <div class="center-label" id="centerLabel">
@@ -246,9 +249,19 @@
         document.getElementById('centerLabel').className='center-label listening';
         document.getElementById('transcript').textContent='Speak now...';
         
-        // SAFETY TIMEOUT: auto-stop after 15 seconds
+        // SAFETY TIMEOUT: auto-stop after 10 seconds with countdown
         clearTimeout(listenTimer);
+        let remaining=10;
+        const cdEl=document.getElementById('countdown');
+        cdEl.style.display='block';
+        cdEl.textContent=`Auto-stop in ${remaining}s`;
+        const cdInterval=setInterval(()=>{
+            remaining--;
+            cdEl.textContent=remaining>0?`Auto-stop in ${remaining}s`:'Processing...';
+            if(remaining<=0)clearInterval(cdInterval);
+        },1000);
         listenTimer=setTimeout(()=>{
+            clearInterval(cdInterval);cdEl.style.display='none';
             if(recording){
                 const text=document.getElementById('transcript').textContent.trim();
                 stopListening();
@@ -257,12 +270,12 @@
                     document.getElementById('stateLabel').textContent='THINKING';
                     getResponse(text);
                 }else{
-                    addLog('jenna','⏰ Timed out. Tap orb again or type below.');
+                    addLog('jenna','⏰ Didn\'t hear anything. Tap orb again or type below.');
                     document.getElementById('stateLabel').textContent='READY';
                     document.getElementById('tapHint').style.display='block';
                 }
             }
-        },15000);
+        },10000);
         
         try{speechRec.start()}catch(e){
             console.log(e);recording=false;orbState='idle';
@@ -276,6 +289,7 @@
     function stopListening(){
         recording=false;
         clearTimeout(listenTimer);
+        document.getElementById('countdown').style.display='none';
         try{speechRec.stop()}catch(e){}
     }
 
