@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AIRA</title>
+    <title>JENNA</title>
     <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#00d4ff">
+    <meta name="theme-color" content="#050510">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
@@ -37,78 +37,70 @@
         .app{display:none;height:100vh;position:relative;overflow:hidden}
         canvas#orbCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1}
 
-        /* Status bar */
-        .status-bar{position:absolute;top:0;left:0;right:0;z-index:10;padding:16px 20px;
-            display:flex;justify-content:space-between;align-items:center;
-            background:linear-gradient(180deg,rgba(5,5,16,0.9) 0%,transparent 100%)}
-        .status-pill{display:flex;align-items:center;gap:6px;padding:6px 14px;
-            background:rgba(0,0,0,0.4);border:1px solid rgba(0,212,255,0.15);
-            border-radius:20px;font-size:12px;color:#888}
-        .status-pill .dot{width:6px;height:6px;border-radius:50%;background:#00ff88;
-            box-shadow:0 0 6px #00ff88}
-        .status-pill.right{color:#00d4ff;border-color:rgba(0,212,255,0.2)}
-
         /* Center label */
         .center-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
             text-align:center;z-index:10;pointer-events:none;transition:all .4s ease}
-        .center-label.listening{top:38%}
-        .center-label .state{font-size:14px;color:#00d4ff;letter-spacing:3px;text-transform:uppercase;
-            opacity:0.7;transition:all .3s}
-        .center-label .transcript{font-size:20px;color:#fff;margin-top:8px;max-width:300px;
+        .center-label.listening{top:35%}
+        .center-label .state{font-size:13px;color:rgba(0,212,255,0.6);letter-spacing:3px;text-transform:uppercase;
+            transition:all .3s}
+        .center-label .transcript{font-size:18px;color:#fff;margin-top:10px;max-width:300px;
             opacity:0;transition:all .3s}
         .center-label.listening .transcript{opacity:1}
-        .center-label .response-text{font-size:15px;color:rgba(255,255,255,0.8);margin-top:10px;
+        .center-label .response-text{font-size:14px;color:rgba(255,255,255,0.8);margin-top:10px;
             max-width:320px;line-height:1.5;opacity:0;transition:all .3s}
         .center-label.speaking .response-text{opacity:1}
 
         /* Tap hint */
-        .tap-hint{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);z-index:10;
-            font-size:13px;color:rgba(255,255,255,0.25);letter-spacing:2px;
+        .tap-hint{position:absolute;bottom:35%;left:50%;transform:translateX(-50%);z-index:10;
+            font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:2px;
             animation:pulseHint 3s ease-in-out infinite;pointer-events:none}
-        @keyframes pulseHint{0%,100%{opacity:0.25}50%{opacity:0.5}}
+        @keyframes pulseHint{0%,100%{opacity:0.2}50%{opacity:0.4}}
 
         /* Chat log */
-        .chat-log{position:absolute;bottom:0;left:0;right:0;z-index:10;
-            max-height:40vh;overflow-y:auto;padding:10px 16px 80px;
-            background:linear-gradient(180deg,transparent 0%,rgba(5,5,16,0.85) 30%,rgba(5,5,16,0.95) 100%);
+        .chat-log{position:absolute;bottom:70px;left:0;right:0;z-index:10;
+            max-height:35vh;overflow-y:auto;padding:10px 16px;
+            background:linear-gradient(180deg,transparent 0%,rgba(5,5,16,0.7) 30%);
             scroll-behavior:smooth}
-        .chat-log::-webkit-scrollbar{width:3px}
-        .chat-log::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:2px}
+        .chat-log::-webkit-scrollbar{width:2px}
+        .chat-log::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.15);border-radius:2px}
         .log-entry{margin-bottom:8px;padding:8px 14px;border-radius:14px;font-size:13px;
-            line-height:1.5;max-width:85%;animation:fadeUp .3s ease}
+            line-height:1.5;max-width:80%;animation:fadeUp .3s ease}
         @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-        .log-entry.user{align-self:flex-end;margin-left:auto;background:rgba(0,212,255,0.15);
-            border:1px solid rgba(0,212,255,0.2);color:#fff}
-        .log-entry.aira{background:rgba(138,43,226,0.12);border:1px solid rgba(138,43,226,0.2);
-            color:rgba(255,255,255,0.9)}
+        .log-entry.user{margin-left:auto;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.15);color:#fff}
+        .log-entry.jenna{background:rgba(138,43,226,0.1);border:1px solid rgba(138,43,226,0.15);color:rgba(255,255,255,0.9)}
 
-        /* Text input */
+        /* Input bar */
         .input-bar{position:absolute;bottom:0;left:0;right:0;z-index:11;padding:12px 16px;
             display:flex;gap:10px;align-items:center;
-            background:rgba(5,5,16,0.95);border-top:1px solid rgba(0,212,255,0.08)}
-        .input-bar input{flex:1;padding:12px 18px;background:rgba(255,255,255,0.05);
-            border:1px solid rgba(255,255,255,0.1);border-radius:24px;color:#fff;font-size:15px;
+            background:rgba(5,5,16,0.95);border-top:1px solid rgba(0,212,255,0.06)}
+        .input-bar input{flex:1;padding:12px 18px;background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);border-radius:24px;color:#fff;font-size:15px;
             outline:none;font-family:'Rajdhani',sans-serif}
-        .input-bar input:focus{border-color:rgba(0,212,255,0.3)}
-        .input-bar input::placeholder{color:#444}
+        .input-bar input:focus{border-color:rgba(0,212,255,0.2)}
+        .input-bar input::placeholder{color:#333}
         .input-bar .send{width:42px;height:42px;border-radius:50%;border:none;
-            background:linear-gradient(135deg,#00d4ff,#8a2be2);color:#fff;font-size:18px;
+            background:linear-gradient(135deg,#00d4ff,#8a2be2);color:#fff;font-size:16px;
             cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
         .input-bar .send:hover{transform:scale(1.1)}
 
         /* Clear button */
-        .clear-btn{position:absolute;top:16px;right:16px;z-index:11;padding:6px 12px;
-            background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-            border-radius:16px;color:#666;font-size:11px;cursor:pointer;transition:all .3s}
-        .clear-btn:hover{color:#ff4444;border-color:rgba(255,68,68,0.3)}
+        .clear-btn{position:absolute;top:16px;right:16px;z-index:11;padding:5px 12px;
+            background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+            border-radius:14px;color:#444;font-size:11px;cursor:pointer;transition:all .3s}
+        .clear-btn:hover{color:#ff4444;border-color:rgba(255,68,68,0.2)}
+
+        /* Mic permission banner */
+        .mic-banner{position:absolute;top:16px;left:16px;right:60px;z-index:11;padding:8px 14px;
+            background:rgba(255,170,0,0.15);border:1px solid rgba(255,170,0,0.3);
+            border-radius:12px;color:#ffaa00;font-size:11px;display:none;text-align:center}
     </style>
 </head>
 <body>
     <!-- LOGIN -->
     <div class="login" id="loginScreen">
         <div class="login-box">
-            <h1>AIRA</h1>
-            <p class="sub">ARTIFICIAL INTELLIGENCE RESEARCH ASSISTANT</p>
+            <h1>JENNA</h1>
+            <p class="sub">JOSS'S ENHANCED NEURAL NETWORK ASSISTANT</p>
             <input type="password" class="login-input" id="pwdInput" placeholder="PASSWORD" onkeypress="if(event.key==='Enter')doLogin()">
             <button class="login-btn" onclick="doLogin()">ENTER</button>
             <div class="login-err" id="loginErr">ACCESS DENIED</div>
@@ -119,10 +111,8 @@
     <div class="app" id="app">
         <canvas id="orbCanvas"></canvas>
 
-        <div class="status-bar">
-            <div class="status-pill"><div class="dot"></div>ONLINE</div>
-            <div class="status-pill right" id="timer">00:00</div>
-        </div>
+        <div class="mic-banner" id="micBanner">🎤 Tap the orb, then allow microphone when prompted</div>
+        <button class="clear-btn" onclick="clearChat()">CLEAR</button>
 
         <div class="center-label" id="centerLabel">
             <div class="state" id="stateLabel">READY</div>
@@ -134,8 +124,6 @@
 
         <div class="chat-log" id="chatLog"></div>
 
-        <button class="clear-btn" onclick="clearChat()">CLEAR</button>
-
         <div class="input-bar">
             <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendText()">
             <button class="send" onclick="sendText()">➤</button>
@@ -144,23 +132,21 @@
 
     <script>
     // ===== CONFIG =====
-    let PWD='', recording=false, rec=null, speaking=false, currentAudio=null;
+    let PWD='', recording=false, mediaRecorder=null, audioChunks=[], speaking=false, currentAudio=null;
     let audioCtx=null, analyser=null, micStream=null;
-    const synth=window.speechSynthesis;
 
     // ===== PARTICLE ORB =====
     const canvas=document.getElementById('orbCanvas');
     const ctx=canvas.getContext('2d');
     let W,H,cx,cy;
     const particles=[];
-    const NUM=180;
-    let orbRadius=120, targetRadius=120;
-    let audioLevel=0, idleTime=0, orbState='idle'; // idle, listening, speaking
+    const NUM=150;
+    let orbRadius=100, audioLevel=0, orbState='idle';
 
     function resize(){
         W=canvas.width=window.innerWidth;
         H=canvas.height=window.innerHeight;
-        cx=W/2; cy=H/2 - 30;
+        cx=W/2; cy=H/2-40;
     }
     window.addEventListener('resize',resize);
     resize();
@@ -170,51 +156,41 @@
         reset(){
             const theta=Math.random()*Math.PI*2;
             const phi=Math.acos(2*Math.random()-1);
-            const r=orbRadius*(0.7+Math.random()*0.3);
+            const r=orbRadius*(0.6+Math.random()*0.4);
             this.baseX=r*Math.sin(phi)*Math.cos(theta);
             this.baseY=r*Math.sin(phi)*Math.sin(theta);
             this.baseZ=r*Math.cos(phi);
             this.x=this.baseX; this.y=this.baseY; this.z=this.baseZ;
             this.size=0.8+Math.random()*2;
-            this.alpha=0.3+Math.random()*0.5;
-            this.speed=0.002+Math.random()*0.004;
+            this.alpha=0.2+Math.random()*0.4;
+            this.speed=0.002+Math.random()*0.003;
             this.angle=Math.random()*Math.PI*2;
-            this.hue=220+Math.random()*60; // blue-purple range
+            this.hue=220+Math.random()*60;
         }
         update(t){
             this.angle+=this.speed;
-            const breathe=Math.sin(t*0.001)*8;
-            const pulse=audioLevel*40;
+            const breathe=Math.sin(t*0.001)*6;
+            const pulse=audioLevel*35;
             const r=orbRadius+breathe+pulse;
-            
-            // Gentle orbit
-            const ox=Math.sin(this.angle)*3;
-            const oy=Math.cos(this.angle*0.7)*3;
-            
+            const ox=Math.sin(this.angle)*2;
+            const oy=Math.cos(this.angle*0.7)*2;
             this.x=this.baseX*(r/orbRadius)+ox;
             this.y=this.baseY*(r/orbRadius)+oy;
             this.z=this.baseZ*(r/orbRadius);
-            
-            // Slow rotation
             const cosA=Math.cos(0.003), sinA=Math.sin(0.003);
             const rx=this.x*cosA-this.z*sinA;
             const rz=this.x*sinA+this.z*cosA;
             this.x=rx; this.z=rz;
-            
-            // Scale alpha based on audio
-            this.alpha=0.3+audioLevel*0.5;
+            this.alpha=0.2+audioLevel*0.5;
         }
         draw(ctx){
-            // Project 3D to 2D
             const scale=300/(300+this.z);
             const px=cx+this.x*scale;
             const py=cy+this.y*scale;
             const sz=this.size*scale;
-            
             const gradient=ctx.createRadialGradient(px,py,0,px,py,sz*3);
-            gradient.addColorStop(0,`hsla(${this.hue},80%,70%,${this.alpha})`);
-            gradient.addColorStop(1,`hsla(${this.hue},80%,70%,0)`);
-            
+            gradient.addColorStop(0,`hsla(${this.hue},70%,65%,${this.alpha})`);
+            gradient.addColorStop(1,`hsla(${this.hue},70%,65%,0)`);
             ctx.beginPath();
             ctx.arc(px,py,sz*3,0,Math.PI*2);
             ctx.fillStyle=gradient;
@@ -231,13 +207,13 @@
                 const dy=particles[i].y-particles[j].y;
                 const dz=particles[i].z-particles[j].z;
                 const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
-                if(dist<50){
-                    const alpha=(1-dist/50)*0.08*(1+audioLevel*2);
-                    const scale1=300/(300+particles[i].z);
-                    const scale2=300/(300+particles[j].z);
+                if(dist<45){
+                    const alpha=(1-dist/45)*0.06*(1+audioLevel*2);
+                    const s1=300/(300+particles[i].z);
+                    const s2=300/(300+particles[j].z);
                     ctx.beginPath();
-                    ctx.moveTo(cx+particles[i].x*scale1,cy+particles[i].y*scale1);
-                    ctx.lineTo(cx+particles[j].x*scale2,cy+particles[j].y*scale2);
+                    ctx.moveTo(cx+particles[i].x*s1,cy+particles[i].y*s1);
+                    ctx.lineTo(cx+particles[j].x*s2,cy+particles[j].y*s2);
                     ctx.strokeStyle=`rgba(0,212,255,${alpha})`;
                     ctx.lineWidth=0.5;
                     ctx.stroke();
@@ -247,16 +223,16 @@
     }
 
     function drawGlow(ctx){
-        const gradient=ctx.createRadialGradient(cx,cy,0,cx,cy,orbRadius*2);
-        const glowAlpha=0.06+audioLevel*0.15;
+        const gradient=ctx.createRadialGradient(cx,cy,0,cx,cy,orbRadius*1.8);
+        const a=0.05+audioLevel*0.12;
         if(orbState==='listening'){
-            gradient.addColorStop(0,`rgba(0,212,255,${glowAlpha})`);
-            gradient.addColorStop(0.5,`rgba(138,43,226,${glowAlpha*0.5})`);
+            gradient.addColorStop(0,`rgba(0,212,255,${a})`);
+            gradient.addColorStop(0.5,`rgba(138,43,226,${a*0.4})`);
         }else if(orbState==='speaking'){
-            gradient.addColorStop(0,`rgba(138,43,226,${glowAlpha})`);
-            gradient.addColorStop(0.5,`rgba(0,255,136,${glowAlpha*0.5})`);
+            gradient.addColorStop(0,`rgba(138,43,226,${a})`);
+            gradient.addColorStop(0.5,`rgba(0,255,136,${a*0.4})`);
         }else{
-            gradient.addColorStop(0,`rgba(0,212,255,${glowAlpha})`);
+            gradient.addColorStop(0,`rgba(0,212,255,${a})`);
             gradient.addColorStop(0.5,'rgba(138,43,226,0)');
         }
         gradient.addColorStop(1,'rgba(0,0,0,0)');
@@ -267,22 +243,17 @@
     function animate(t){
         requestAnimationFrame(animate);
         ctx.clearRect(0,0,W,H);
-        
-        // Smooth audio level decay
         if(orbState==='idle') audioLevel*=0.92;
-        
         drawGlow(ctx);
         drawConnections(ctx);
         particles.forEach(p=>{p.update(t);p.draw(ctx)});
     }
     requestAnimationFrame(animate);
 
-    // ===== ORB CLICK TO TALK =====
+    // ===== ORB CLICK =====
     canvas.addEventListener('click',(e)=>{
         const dx=e.clientX-cx, dy=e.clientY-cy;
-        if(Math.sqrt(dx*dx+dy*dy)<orbRadius*2){
-            toggleMic();
-        }
+        if(Math.sqrt(dx*dx+dy*dy)<orbRadius*2) toggleMic();
     });
 
     // ===== LOGIN =====
@@ -293,78 +264,88 @@
         .then(r=>{if(r.ok){PWD=p;localStorage.setItem('jenna_pwd',p);document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio();startTimer()}
         else{document.getElementById('loginErr').style.display='block';document.getElementById('pwdInput').value=''}});
     }
-    // Auto-login if saved
     window.addEventListener('load',()=>{
         const saved=localStorage.getItem('jenna_pwd');
         if(saved){
             PWD=saved;
             fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:saved})})
-            .then(r=>{if(r.ok){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio();startTimer();localStorage.setItem('jenna_pwd',saved)}
+            .then(r=>{if(r.ok){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio();startTimer()}
             else{localStorage.removeItem('jenna_pwd')}});
         }
     });
 
-    // ===== AUDIO / MIC =====
+    // ===== AUDIO =====
     async function initAudio(){
         try{
             audioCtx=new(window.AudioContext||window.webkitAudioContext)();
             analyser=audioCtx.createAnalyser();
             analyser.fftSize=256;
-        }catch(e){console.log('Audio init failed')}
-        
-        // Check if MediaRecorder is available (for sending audio to server)
-        if(typeof MediaRecorder!=='undefined'){
-            console.log('MediaRecorder available - will use server-side STT');
-        }
+        }catch(e){}
     }
 
-    // Server-side STT: record audio → send to Groq Whisper API → get text
-    async function startMicStream(){
+    async function toggleMic(){
+        if(speaking){stopSpeaking();return}
+        if(recording){
+            // Stop recording
+            recording=false;orbState='idle';
+            if(mediaRecorder&&mediaRecorder.state==='recording') mediaRecorder.stop();
+            document.getElementById('stateLabel').textContent='THINKING';
+            return;
+        }
+
+        // Request mic permission
         try{
             micStream=await navigator.mediaDevices.getUserMedia({audio:true});
-            if(audioCtx&&analyser){
-                const src=audioCtx.createMediaStreamSource(micStream);
-                src.connect(analyser);
-                updateMicLevel();
-            }
-            // Start recording for server-side STT
-            mediaRecorder=new MediaRecorder(micStream,{mimeType:'audio/webm'});
-            audioChunks=[];
-            mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};
-            mediaRecorder.start();
-        }catch(e){console.log('Mic stream failed')}
-    }
+        }catch(e){
+            document.getElementById('micBanner').style.display='block';
+            setTimeout(()=>document.getElementById('micBanner').style.display='none',5000);
+            return;
+        }
 
-    function stopMicStream(){
-        if(mediaRecorder&&mediaRecorder.state==='recording'){
-            mediaRecorder.stop();
-            // Send recorded audio to server for STT
-            mediaRecorder.onstop=async()=>{
-                if(audioChunks.length===0)return;
-                const blob=new Blob(audioChunks,{type:'audio/webm'});
-                const formData=new FormData();
-                formData.append('audio',blob,'recording.webm');
-                formData.append('password',PWD);
-                document.getElementById('stateLabel').textContent='THINKING';
-                try{
-                    const resp=await fetch('/api/listen',{method:'POST',body:formData});
-                    const data=await resp.json();
-                    if(data.text){
-                        document.getElementById('transcript').textContent=data.text;
-                        addLog('user',data.text);
-                        getResponse(data.text);
-                    }else{
-                        document.getElementById('stateLabel').textContent='READY';
-                        document.getElementById('tapHint').style.display='block';
-                    }
-                }catch(e){
-                    console.log('STT error:',e);
+        recording=true;orbState='listening';
+        document.getElementById('stateLabel').textContent='LISTENING';
+        document.getElementById('tapHint').style.display='none';
+        document.getElementById('centerLabel').className='center-label listening';
+        document.getElementById('transcript').textContent='';
+
+        // Visualize mic
+        if(audioCtx&&analyser){
+            const src=audioCtx.createMediaStreamSource(micStream);
+            src.connect(analyser);
+            updateMicLevel();
+        }
+
+        // Record audio
+        mediaRecorder=new MediaRecorder(micStream,{mimeType:'audio/webm'});
+        audioChunks=[];
+        mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};
+        mediaRecorder.onstop=async()=>{
+            if(audioChunks.length===0)return;
+            const blob=new Blob(audioChunks,{type:'audio/webm'});
+            const formData=new FormData();
+            formData.append('audio',blob,'recording.webm');
+            formData.append('password',PWD);
+            document.getElementById('stateLabel').textContent='THINKING';
+            try{
+                const resp=await fetch('/api/listen',{method:'POST',body:formData});
+                const data=await resp.json();
+                if(data.text&&data.text.trim()){
+                    document.getElementById('transcript').textContent=data.text;
+                    addLog('user',data.text);
+                    getResponse(data.text);
+                }else{
                     document.getElementById('stateLabel').textContent='READY';
                     document.getElementById('tapHint').style.display='block';
+                    document.getElementById('centerLabel').className='center-label';
                 }
-            };
-        }
-        if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
+            }catch(e){
+                document.getElementById('stateLabel').textContent='READY';
+                document.getElementById('tapHint').style.display='block';
+                document.getElementById('centerLabel').className='center-label';
+            }
+            if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
+        };
+        mediaRecorder.start();
     }
 
     function updateMicLevel(){
@@ -374,18 +355,6 @@
         let sum=0;for(let i=0;i<data.length;i++)sum+=data[i];
         audioLevel=(sum/data.length)/255;
         requestAnimationFrame(updateMicLevel);
-    }
-
-    function toggleMic(){
-        if(speaking){stopSpeaking();return}
-        if(recording){recording=false;orbState='idle';stopMicStream();return}
-        
-        recording=true;orbState='listening';
-        document.getElementById('stateLabel').textContent='LISTENING';
-        document.getElementById('tapHint').style.display='none';
-        document.getElementById('centerLabel').className='center-label listening';
-        document.getElementById('transcript').textContent='';
-        startMicStream();
     }
 
     // ===== CHAT =====
@@ -403,12 +372,11 @@
         fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({message:msg,password:PWD})})
         .then(r=>r.json()).then(d=>{
-            addLog('aira',d.response);
+            addLog('jenna',d.response);
             document.getElementById('responseText').textContent=d.response;
-            document.getElementById('stateLabel').textContent='SPEAKING';
             speak(d.response);
         }).catch(()=>{
-            addLog('aira','Connection error.');
+            addLog('jenna','Connection error.');
             document.getElementById('stateLabel').textContent='READY';
             document.getElementById('tapHint').style.display='block';
         });
@@ -419,7 +387,7 @@
         const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
         const d=document.createElement('div');
         d.className=`log-entry ${sender}`;
-        d.innerHTML=`${text} <span style="font-size:10px;opacity:0.4;margin-left:6px">${time}</span>`;
+        d.innerHTML=`${text} <span style="font-size:10px;opacity:0.3;margin-left:6px">${time}</span>`;
         log.appendChild(d);
         log.scrollTop=log.scrollHeight;
     }
@@ -430,6 +398,7 @@
         orbState='speaking';
         document.getElementById('stateLabel').textContent='SPEAKING';
         document.getElementById('tapHint').style.display='none';
+        document.getElementById('centerLabel').className='center-label speaking';
         
         fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},
             body:JSON.stringify({text:text,password:PWD})})
@@ -437,8 +406,6 @@
         .then(blob=>{
             const url=URL.createObjectURL(blob);
             currentAudio=new Audio(url);
-            
-            // Connect to analyser for speaking visualization
             if(audioCtx){
                 try{
                     const src=audioCtx.createMediaElementSource(currentAudio);
@@ -449,17 +416,16 @@
                     updateSpeakLevel();
                 }catch(e){}
             }
-            
             currentAudio.onended=()=>{stopSpeaking();URL.revokeObjectURL(url);currentAudio=null};
             currentAudio.onerror=()=>{stopSpeaking();currentAudio=null};
             currentAudio.play();
         })
         .catch(()=>{
-            // Fallback browser TTS
-            if(synth){
+            // Browser TTS fallback
+            if(window.speechSynthesis){
                 const u=new SpeechSynthesisUtterance(text);u.rate=1.05;u.pitch=1.15;
                 u.onend=()=>stopSpeaking();
-                synth.speak(u);
+                window.speechSynthesis.speak(u);
             }else{stopSpeaking()}
         });
     }
@@ -475,15 +441,16 @@
 
     function stopSpeaking(){
         if(currentAudio){currentAudio.pause();currentAudio=null}
-        if(synth)synth.cancel();
+        if(window.speechSynthesis)window.speechSynthesis.cancel();
         orbState='idle';audioLevel=0;
         document.getElementById('stateLabel').textContent='READY';
         document.getElementById('tapHint').style.display='block';
+        document.getElementById('centerLabel').className='center-label';
     }
 
     function clearChat(){
         document.getElementById('chatLog').innerHTML='';
-        addLog('aira','Fresh start! Tap the orb to talk.');
+        addLog('jenna','Fresh start! Tap the orb or type a message.');
         fetch('/api/clear-memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:PWD})});
     }
 
@@ -492,12 +459,9 @@
         const start=Date.now();
         setInterval(()=>{
             const e=Math.floor((Date.now()-start)/1000);
-            document.getElementById('timer').textContent=
-                Math.floor(e/60).toString().padStart(2,'0')+':'+(e%60).toString().padStart(2,'0');
+            // Timer hidden - no ugly numbers on screen
         },1000);
     }
-
-    if(synth)synth.onvoiceschanged=()=>synth.getVoices();
     </script>
 </body>
 </html>

@@ -1,20 +1,20 @@
-# JENNA - Main Application (Render Version)
+# JENNA - Main Application
 # Joss's Enhanced Neural Network Assistant
 
 from flask import Flask, render_template, request, jsonify, send_file
-import os, sys, tempfile, json, requests
+import os, sys, tempfile, json
 
 AIRA_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(AIRA_DIR, 'brain'))
 
-from aira_brain import AIRABrain
+from jenna_brain import JENNABrain
 
 app = Flask(__name__, 
             template_folder=os.path.join(AIRA_DIR, 'ui', 'templates'),
             static_folder=os.path.join(AIRA_DIR, 'ui', 'static'))
 
 AIRA_PASSWORD = 'Jossloveaira@123'
-brain = AIRABrain()
+brain = JENNABrain()
 
 @app.route('/')
 def home():
@@ -66,7 +66,7 @@ def speak():
 
 @app.route('/api/listen', methods=['POST'])
 def listen():
-    """Server-side STT using Groq Whisper - no browser mic dependency"""
+    """Server-side STT using Groq Whisper"""
     if request.form.get('password', '') != AIRA_PASSWORD:
         return jsonify({'text': '', 'status': 'unauthorized'}), 401
     
@@ -80,9 +80,11 @@ def listen():
     
     groq_key = os.environ.get('GROQ_API_KEY', '')
     if not groq_key:
-        return jsonify({'text': '', 'status': 'no API key'}), 500
+        # Fallback: return empty, user can type
+        return jsonify({'text': '', 'status': 'no API key - type instead'}), 200
     
     # Send to Groq Whisper API
+    import requests
     try:
         url = "https://api.groq.com/openai/v1/audio/transcriptions"
         with open(temp_path, 'rb') as f:
@@ -95,18 +97,14 @@ def listen():
             text = resp.json().get('text', '')
             return jsonify({'text': text, 'status': 'success'})
         else:
-            print(f"Whisper error: {resp.status_code} {resp.text}")
             return jsonify({'text': '', 'status': 'whisper error'}), 500
     except Exception as e:
-        print(f"Listen error: {e}")
         return jsonify({'text': '', 'status': str(e)}), 500
 
 @app.route('/api/status')
 def status():
     return jsonify({'name': 'JENNA', 'version': '1.0.0', 'status': 'online',
-        'creator': 'Joss Collen', 'full_name': "Joss's Enhanced Neural Network Assistant",
-        'brain': 'Groq AI', 'voice': 'Independent TTS', 'stt': 'Groq Whisper Server-Side',
-        'protected': True})
+        'creator': 'Joss Collen', 'full_name': "Joss's Enhanced Neural Network Assistant"})
 
 @app.route('/api/memory')
 def memory():
