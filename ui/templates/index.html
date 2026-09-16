@@ -7,96 +7,45 @@
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#050510">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Rajdhani',sans-serif;background:#050510;color:#fff;height:100vh;overflow:hidden;-webkit-tap-highlight-color:transparent}
-
-        /* LOGIN */
-        .login{display:flex;justify-content:center;align-items:center;height:100vh;
-            background:radial-gradient(ellipse at center,#0a0a2e 0%,#050510 70%)}
-        .login-box{background:rgba(15,15,35,0.95);border-radius:24px;border:1px solid rgba(0,212,255,0.15);
-            padding:50px 40px;text-align:center;max-width:380px;width:90%}
-        .login-box h1{font-size:36px;font-weight:700;background:linear-gradient(90deg,#00d4ff,#8a2be2);
-            -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
-        .login-box .sub{color:#555;font-size:12px;letter-spacing:2px;margin-bottom:25px}
-        .login-input{width:100%;padding:14px;background:rgba(0,0,0,0.5);border:1px solid rgba(0,212,255,0.2);
-            border-radius:12px;color:#fff;font-size:18px;text-align:center;letter-spacing:4px;outline:none;
-            font-family:'Rajdhani',sans-serif;margin-bottom:18px}
-        .login-input:focus{border-color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,0.2)}
-        .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#00d4ff,#8a2be2);
-            border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:600;
-            cursor:pointer;letter-spacing:2px;transition:all .3s}
-        .login-btn:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(0,212,255,0.4)}
+        body{font-family:'Segoe UI',sans-serif;background:#050510;color:#fff;height:100vh;overflow:hidden}
+        .login{display:flex;justify-content:center;align-items:center;height:100vh;background:radial-gradient(ellipse at center,#0a0a2e,#050510 70%)}
+        .login-box{background:rgba(15,15,35,0.95);border-radius:24px;border:1px solid rgba(0,212,255,0.15);padding:50px 40px;text-align:center;max-width:380px;width:90%}
+        .login-box h1{font-size:36px;font-weight:700;background:linear-gradient(90deg,#00d4ff,#8a2be2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+        .login-box .sub{color:#555;font-size:11px;letter-spacing:2px;margin-bottom:25px}
+        .login-input{width:100%;padding:14px;background:rgba(0,0,0,0.5);border:1px solid rgba(0,212,255,0.2);border-radius:12px;color:#fff;font-size:18px;text-align:center;letter-spacing:4px;outline:none;margin-bottom:18px}
+        .login-input:focus{border-color:#00d4ff}
+        .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#00d4ff,#8a2be2);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;letter-spacing:2px}
         .login-err{color:#ff4444;font-size:13px;margin-top:12px;display:none}
-
-        /* MAIN */
         .app{display:none;height:100vh;position:relative;overflow:hidden}
         canvas#orbCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1}
-
-        /* Center label */
-        .center-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-            text-align:center;z-index:10;pointer-events:none;transition:all .4s ease}
-        .center-label.listening{top:35%}
-        .center-label .state{font-size:13px;color:rgba(0,212,255,0.6);letter-spacing:3px;text-transform:uppercase;
-            transition:all .3s}
-        .center-label .transcript{font-size:18px;color:#fff;margin-top:10px;max-width:300px;
-            opacity:0;transition:all .3s}
-        .center-label.listening .transcript{opacity:1}
-        .center-label .response-text{font-size:14px;color:rgba(255,255,255,0.8);margin-top:10px;
-            max-width:320px;line-height:1.5;opacity:0;transition:all .3s}
+        .center-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:10;pointer-events:none;transition:all .4s}
+        .center-label.listening{top:38%}
+        .center-label .state{font-size:12px;color:rgba(0,212,255,0.5);letter-spacing:3px;text-transform:uppercase}
+        .center-label .transcript{font-size:16px;color:#fff;margin-top:10px;max-width:280px;min-height:20px}
+        .center-label .response-text{font-size:14px;color:rgba(255,255,255,0.8);margin-top:8px;max-width:300px;line-height:1.5;opacity:0;transition:all .3s}
         .center-label.speaking .response-text{opacity:1}
-
-        /* Tap hint */
-        .tap-hint{position:absolute;bottom:35%;left:50%;transform:translateX(-50%);z-index:10;
-            font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:2px;
-            animation:pulseHint 3s ease-in-out infinite;pointer-events:none}
-        @keyframes pulseHint{0%,100%{opacity:0.2}50%{opacity:0.4}}
-
-        /* Chat log */
-        .chat-log{position:absolute;bottom:70px;left:0;right:0;z-index:10;
-            max-height:35vh;overflow-y:auto;padding:10px 16px;
-            background:linear-gradient(180deg,transparent 0%,rgba(5,5,16,0.7) 30%);
-            scroll-behavior:smooth}
+        .tap-hint{position:absolute;bottom:36%;left:50%;transform:translateX(-50%);z-index:10;font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:2px;animation:pulse 3s ease-in-out infinite;pointer-events:none}
+        @keyframes pulse{0%,100%{opacity:0.2}50%{opacity:0.4}}
+        .chat-log{position:absolute;bottom:70px;left:0;right:0;z-index:10;max-height:35vh;overflow-y:auto;padding:10px 16px;background:linear-gradient(180deg,transparent,rgba(5,5,16,0.7) 30%)}
         .chat-log::-webkit-scrollbar{width:2px}
         .chat-log::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.15);border-radius:2px}
-        .log-entry{margin-bottom:8px;padding:8px 14px;border-radius:14px;font-size:13px;
-            line-height:1.5;max-width:80%;animation:fadeUp .3s ease}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-        .log-entry.user{margin-left:auto;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.15);color:#fff}
-        .log-entry.jenna{background:rgba(138,43,226,0.1);border:1px solid rgba(138,43,226,0.15);color:rgba(255,255,255,0.9)}
-
-        /* Input bar */
-        .input-bar{position:absolute;bottom:0;left:0;right:0;z-index:11;padding:12px 16px;
-            display:flex;gap:10px;align-items:center;
-            background:rgba(5,5,16,0.95);border-top:1px solid rgba(0,212,255,0.06)}
-        .input-bar input{flex:1;padding:12px 18px;background:rgba(255,255,255,0.04);
-            border:1px solid rgba(255,255,255,0.08);border-radius:24px;color:#fff;font-size:15px;
-            outline:none;font-family:'Rajdhani',sans-serif}
-        .input-bar input:focus{border-color:rgba(0,212,255,0.2)}
+        .log-entry{margin-bottom:8px;padding:8px 14px;border-radius:14px;font-size:13px;line-height:1.5;max-width:80%;animation:fadeUp .3s}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        .log-entry.user{margin-left:auto;background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.15)}
+        .log-entry.jenna{background:rgba(138,43,226,0.1);border:1px solid rgba(138,43,226,0.15)}
+        .input-bar{position:absolute;bottom:0;left:0;right:0;z-index:11;padding:12px 16px;display:flex;gap:10px;align-items:center;background:rgba(5,5,16,0.95);border-top:1px solid rgba(0,212,255,0.06)}
+        .input-bar input{flex:1;padding:12px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:24px;color:#fff;font-size:15px;outline:none}
         .input-bar input::placeholder{color:#333}
-        .input-bar .send{width:42px;height:42px;border-radius:50%;border:none;
-            background:linear-gradient(135deg,#00d4ff,#8a2be2);color:#fff;font-size:16px;
-            cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s}
-        .input-bar .send:hover{transform:scale(1.1)}
-
-        /* Clear button */
-        .clear-btn{position:absolute;top:16px;right:16px;z-index:11;padding:5px 12px;
-            background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
-            border-radius:14px;color:#444;font-size:11px;cursor:pointer;transition:all .3s}
-        .clear-btn:hover{color:#ff4444;border-color:rgba(255,68,68,0.2)}
-
-        /* Mic permission banner */
-        .mic-banner{position:absolute;top:16px;left:16px;right:60px;z-index:11;padding:8px 14px;
-            background:rgba(255,170,0,0.15);border:1px solid rgba(255,170,0,0.3);
-            border-radius:12px;color:#ffaa00;font-size:11px;display:none;text-align:center}
+        .input-bar .send{width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,#00d4ff,#8a2be2);color:#fff;font-size:16px;cursor:pointer}
+        .clear-btn{position:absolute;top:16px;right:16px;z-index:11;padding:5px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;color:#444;font-size:11px;cursor:pointer}
+        .clear-btn:hover{color:#ff4444}
+        .mic-err{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;background:rgba(0,0,0,0.85);padding:20px 30px;border-radius:16px;border:1px solid rgba(255,170,0,0.3);color:#ffaa00;font-size:13px;text-align:center;display:none;max-width:280px}
     </style>
 </head>
 <body>
-    <!-- LOGIN -->
     <div class="login" id="loginScreen">
         <div class="login-box">
             <h1>JENNA</h1>
@@ -107,23 +56,18 @@
         </div>
     </div>
 
-    <!-- APP -->
     <div class="app" id="app">
         <canvas id="orbCanvas"></canvas>
-
-        <div class="mic-banner" id="micBanner">🎤 Tap the orb, then allow microphone when prompted</div>
         <button class="clear-btn" onclick="clearChat()">CLEAR</button>
+        <div class="mic-err" id="micErr">🎤 Mic blocked. Go to browser Settings → Site Settings → Microphone → Allow for this site.</div>
 
         <div class="center-label" id="centerLabel">
             <div class="state" id="stateLabel">READY</div>
             <div class="transcript" id="transcript"></div>
             <div class="response-text" id="responseText"></div>
         </div>
-
         <div class="tap-hint" id="tapHint">TAP ORB TO SPEAK</div>
-
         <div class="chat-log" id="chatLog"></div>
-
         <div class="input-bar">
             <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendText()">
             <button class="send" onclick="sendText()">➤</button>
@@ -131,273 +75,185 @@
     </div>
 
     <script>
-    // ===== CONFIG =====
-    let PWD='', recording=false, mediaRecorder=null, audioChunks=[], speaking=false, currentAudio=null;
-    let audioCtx=null, analyser=null, micStream=null;
+    let PWD='',recording=false,speaking=false,currentAudio=null;
+    let audioCtx=null,analyser=null,micStream=null,speechRec=null;
 
-    // ===== PARTICLE ORB =====
+    // ===== ORB =====
     const canvas=document.getElementById('orbCanvas');
     const ctx=canvas.getContext('2d');
-    let W,H,cx,cy;
-    const particles=[];
-    const NUM=150;
-    let orbRadius=100, audioLevel=0, orbState='idle';
+    let W,H,cx,cy,orbRadius=100,audioLevel=0,orbState='idle';
+    const particles=[];const NUM=150;
 
-    function resize(){
-        W=canvas.width=window.innerWidth;
-        H=canvas.height=window.innerHeight;
-        cx=W/2; cy=H/2-40;
-    }
-    window.addEventListener('resize',resize);
-    resize();
+    function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;cx=W/2;cy=H/2-40}
+    window.addEventListener('resize',resize);resize();
 
-    class Particle{
+    class P{
         constructor(){this.reset()}
         reset(){
-            const theta=Math.random()*Math.PI*2;
-            const phi=Math.acos(2*Math.random()-1);
-            const r=orbRadius*(0.6+Math.random()*0.4);
-            this.baseX=r*Math.sin(phi)*Math.cos(theta);
-            this.baseY=r*Math.sin(phi)*Math.sin(theta);
-            this.baseZ=r*Math.cos(phi);
-            this.x=this.baseX; this.y=this.baseY; this.z=this.baseZ;
-            this.size=0.8+Math.random()*2;
-            this.alpha=0.2+Math.random()*0.4;
-            this.speed=0.002+Math.random()*0.003;
-            this.angle=Math.random()*Math.PI*2;
+            const t=Math.random()*Math.PI*2,phi=Math.acos(2*Math.random()-1),r=orbRadius*(0.6+Math.random()*0.4);
+            this.bx=r*Math.sin(phi)*Math.cos(t);this.by=r*Math.sin(phi)*Math.sin(t);this.bz=r*Math.cos(phi);
+            this.x=this.bx;this.y=this.by;this.z=this.bz;
+            this.size=0.8+Math.random()*2;this.alpha=0.2+Math.random()*0.4;
+            this.speed=0.002+Math.random()*0.003;this.angle=Math.random()*Math.PI*2;
             this.hue=220+Math.random()*60;
         }
         update(t){
             this.angle+=this.speed;
-            const breathe=Math.sin(t*0.001)*6;
-            const pulse=audioLevel*35;
-            const r=orbRadius+breathe+pulse;
-            const ox=Math.sin(this.angle)*2;
-            const oy=Math.cos(this.angle*0.7)*2;
-            this.x=this.baseX*(r/orbRadius)+ox;
-            this.y=this.baseY*(r/orbRadius)+oy;
-            this.z=this.baseZ*(r/orbRadius);
-            const cosA=Math.cos(0.003), sinA=Math.sin(0.003);
-            const rx=this.x*cosA-this.z*sinA;
-            const rz=this.x*sinA+this.z*cosA;
-            this.x=rx; this.z=rz;
+            const breathe=Math.sin(t*0.001)*6,pulse=audioLevel*35,r=orbRadius+breathe+pulse;
+            this.x=this.bx*(r/orbRadius)+Math.sin(this.angle)*2;
+            this.y=this.by*(r/orbRadius)+Math.cos(this.angle*0.7)*2;
+            this.z=this.bz*(r/orbRadius);
+            const c=Math.cos(0.003),s=Math.sin(0.003),rx=this.x*c-this.z*s;
+            this.z=this.x*s+this.z*c;this.x=rx;
             this.alpha=0.2+audioLevel*0.5;
         }
         draw(ctx){
-            const scale=300/(300+this.z);
-            const px=cx+this.x*scale;
-            const py=cy+this.y*scale;
-            const sz=this.size*scale;
-            const gradient=ctx.createRadialGradient(px,py,0,px,py,sz*3);
-            gradient.addColorStop(0,`hsla(${this.hue},70%,65%,${this.alpha})`);
-            gradient.addColorStop(1,`hsla(${this.hue},70%,65%,0)`);
-            ctx.beginPath();
-            ctx.arc(px,py,sz*3,0,Math.PI*2);
-            ctx.fillStyle=gradient;
-            ctx.fill();
+            const sc=300/(300+this.z),px=cx+this.x*sc,py=cy+this.y*sc,sz=this.size*sc;
+            const g=ctx.createRadialGradient(px,py,0,px,py,sz*3);
+            g.addColorStop(0,`hsla(${this.hue},70%,65%,${this.alpha})`);
+            g.addColorStop(1,`hsla(${this.hue},70%,65%,0)`);
+            ctx.beginPath();ctx.arc(px,py,sz*3,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
         }
     }
-
-    for(let i=0;i<NUM;i++) particles.push(new Particle());
-
-    function drawConnections(ctx){
-        for(let i=0;i<particles.length;i++){
-            for(let j=i+1;j<particles.length;j++){
-                const dx=particles[i].x-particles[j].x;
-                const dy=particles[i].y-particles[j].y;
-                const dz=particles[i].z-particles[j].z;
-                const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
-                if(dist<45){
-                    const alpha=(1-dist/45)*0.06*(1+audioLevel*2);
-                    const s1=300/(300+particles[i].z);
-                    const s2=300/(300+particles[j].z);
-                    ctx.beginPath();
-                    ctx.moveTo(cx+particles[i].x*s1,cy+particles[i].y*s1);
-                    ctx.lineTo(cx+particles[j].x*s2,cy+particles[j].y*s2);
-                    ctx.strokeStyle=`rgba(0,212,255,${alpha})`;
-                    ctx.lineWidth=0.5;
-                    ctx.stroke();
-                }
-            }
-        }
-    }
-
-    function drawGlow(ctx){
-        const gradient=ctx.createRadialGradient(cx,cy,0,cx,cy,orbRadius*1.8);
-        const a=0.05+audioLevel*0.12;
-        if(orbState==='listening'){
-            gradient.addColorStop(0,`rgba(0,212,255,${a})`);
-            gradient.addColorStop(0.5,`rgba(138,43,226,${a*0.4})`);
-        }else if(orbState==='speaking'){
-            gradient.addColorStop(0,`rgba(138,43,226,${a})`);
-            gradient.addColorStop(0.5,`rgba(0,255,136,${a*0.4})`);
-        }else{
-            gradient.addColorStop(0,`rgba(0,212,255,${a})`);
-            gradient.addColorStop(0.5,'rgba(138,43,226,0)');
-        }
-        gradient.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle=gradient;
-        ctx.fillRect(0,0,W,H);
-    }
+    for(let i=0;i<NUM;i++)particles.push(new P());
 
     function animate(t){
-        requestAnimationFrame(animate);
-        ctx.clearRect(0,0,W,H);
-        if(orbState==='idle') audioLevel*=0.92;
-        drawGlow(ctx);
-        drawConnections(ctx);
+        requestAnimationFrame(animate);ctx.clearRect(0,0,W,H);
+        if(orbState==='idle')audioLevel*=0.92;
+        // Glow
+        const g=ctx.createRadialGradient(cx,cy,0,cx,cy,orbRadius*1.8);
+        const a=0.05+audioLevel*0.12;
+        if(orbState==='listening'){g.addColorStop(0,`rgba(0,212,255,${a})`);g.addColorStop(0.5,`rgba(138,43,226,${a*0.4})`)}
+        else if(orbState==='speaking'){g.addColorStop(0,`rgba(138,43,226,${a})`);g.addColorStop(0.5,`rgba(0,255,136,${a*0.4})`)}
+        else{g.addColorStop(0,`rgba(0,212,255,${a})`);g.addColorStop(0.5,'rgba(138,43,226,0)')}
+        g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+        // Connections
+        for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){
+            const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dz=particles[i].z-particles[j].z;
+            const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
+            if(dist<45){
+                const al=(1-dist/45)*0.06*(1+audioLevel*2);
+                const s1=300/(300+particles[i].z),s2=300/(300+particles[j].z);
+                ctx.beginPath();ctx.moveTo(cx+particles[i].x*s1,cy+particles[i].y*s1);
+                ctx.lineTo(cx+particles[j].x*s2,cy+particles[j].y*s2);
+                ctx.strokeStyle=`rgba(0,212,255,${al})`;ctx.lineWidth=0.5;ctx.stroke();
+            }
+        }}
         particles.forEach(p=>{p.update(t);p.draw(ctx)});
     }
     requestAnimationFrame(animate);
 
-    // ===== ORB CLICK =====
-    canvas.addEventListener('click',(e)=>{
-        const dx=e.clientX-cx, dy=e.clientY-cy;
-        if(Math.sqrt(dx*dx+dy*dy)<orbRadius*2) toggleMic();
-    });
+    canvas.addEventListener('click',e=>{const dx=e.clientX-cx,dy=e.clientY-cy;if(Math.sqrt(dx*dx+dy*dy)<orbRadius*2)toggleMic()});
 
     // ===== LOGIN =====
     function doLogin(){
-        const p=document.getElementById('pwdInput').value;
-        if(!p)return;
+        const p=document.getElementById('pwdInput').value;if(!p)return;
         fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:p})})
-        .then(r=>{if(r.ok){PWD=p;localStorage.setItem('jenna_pwd',p);document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio();startTimer()}
+        .then(r=>{if(r.ok){PWD=p;localStorage.setItem('jenna_pwd',p);document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio()}
         else{document.getElementById('loginErr').style.display='block';document.getElementById('pwdInput').value=''}});
     }
     window.addEventListener('load',()=>{
-        const saved=localStorage.getItem('jenna_pwd');
-        if(saved){
-            PWD=saved;
-            fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:saved})})
-            .then(r=>{if(r.ok){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio();startTimer()}
-            else{localStorage.removeItem('jenna_pwd')}});
-        }
+        const s=localStorage.getItem('jenna_pwd');
+        if(s){PWD=s;fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:s})})
+        .then(r=>{if(r.ok){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio()}else localStorage.removeItem('jenna_pwd')})}
     });
 
-    // ===== AUDIO =====
-    async function initAudio(){
-        try{
-            audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-            analyser=audioCtx.createAnalyser();
-            analyser.fftSize=256;
-        }catch(e){}
+    // ===== MIC - Uses browser speech recognition (FREE, no API key) =====
+    function initAudio(){
+        try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256}catch(e){}
+        
+        const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+        if(!SR){addLog('jenna','Voice not supported. Type below.');return}
+        
+        speechRec=new SR();
+        speechRec.continuous=false;
+        speechRec.interimResults=true;
+        speechRec.lang='en-US';
+        
+        speechRec.onresult=e=>{
+            let final='',interim='';
+            for(let i=e.resultIndex;i<e.results.length;i++){
+                const t=e.results[i][0].transcript;
+                if(e.results[i].isFinal)final+=t;else interim=t;
+            }
+            if(interim)document.getElementById('transcript').textContent=interim;
+            if(final)document.getElementById('transcript').textContent=final;
+        };
+        
+        speechRec.onend=()=>{
+            if(recording){
+                const text=document.getElementById('transcript').textContent.trim();
+                recording=false;orbState='idle';audioLevel=0;
+                document.getElementById('centerLabel').className='center-label';
+                if(text&&text!=='Speak now...'){
+                    addLog('user',text);
+                    document.getElementById('transcript').textContent='';
+                    document.getElementById('stateLabel').textContent='THINKING';
+                    getResponse(text);
+                }else{
+                    addLog('jenna','I didn\'t catch that. Try again or type below.');
+                    document.getElementById('stateLabel').textContent='READY';
+                    document.getElementById('tapHint').style.display='block';
+                }
+            }
+            if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
+        };
+        
+        speechRec.onerror=e=>{
+            console.log('Speech error:',e.error);
+            recording=false;orbState='idle';audioLevel=0;
+            document.getElementById('centerLabel').className='center-label';
+            if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+                document.getElementById('micErr').style.display='block';
+                setTimeout(()=>document.getElementById('micErr').style.display='none',6000);
+            }else if(e.error!=='no-speech'){
+                addLog('jenna','Could not hear. Try again or type below.');
+            }
+            document.getElementById('stateLabel').textContent='READY';
+            document.getElementById('tapHint').style.display='block';
+            if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
+        };
     }
 
     async function toggleMic(){
         if(speaking){stopSpeaking();return}
-        if(recording){
-            recording=false;orbState='idle';
-            if(mediaRecorder&&mediaRecorder.state==='recording') mediaRecorder.stop();
-            document.getElementById('stateLabel').textContent='THINKING';
+        if(recording){recording=false;if(speechRec)try{speechRec.stop()}catch(e){}return}
+        if(!speechRec){addLog('jenna','Voice not supported. Type below.');return}
+        
+        try{micStream=await navigator.mediaDevices.getUserMedia({audio:true})}
+        catch(e){
+            document.getElementById('micErr').style.display='block';
+            setTimeout(()=>document.getElementById('micErr').style.display='none',6000);
             return;
         }
-
-        // Check if mic is available
-        if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-            addLog('jenna','🎤 Mic not supported on this device. Use the text input below.');
-            return;
-        }
-
-        // Request mic permission
-        try{
-            micStream=await navigator.mediaDevices.getUserMedia({audio:true});
-        }catch(e){
-            addLog('jenna','🎤 Mic permission denied. Tap "Allow" next time, or type below.');
-            document.getElementById('micBanner').style.display='block';
-            setTimeout(()=>document.getElementById('micBanner').style.display='none',5000);
-            return;
-        }
-
+        
+        if(audioCtx&&analyser){try{analyser.connect(audioCtx.destination)}catch(e){}}
+        
         recording=true;orbState='listening';
         document.getElementById('stateLabel').textContent='LISTENING';
         document.getElementById('tapHint').style.display='none';
         document.getElementById('centerLabel').className='center-label listening';
-        document.getElementById('transcript').textContent='';
-
-        // Visualize mic
-        if(audioCtx&&analyser){
-            try{
-                const src=audioCtx.createMediaStreamSource(micStream);
-                src.connect(analyser);
-                updateMicLevel();
-            }catch(e){}
-        }
-
-        // Try multiple audio formats for mobile compatibility
-        let mimeType='audio/webm;codecs=opus';
-        if(!MediaRecorder.isTypeSupported(mimeType)){
-            mimeType='audio/webm';
-            if(!MediaRecorder.isTypeSupported(mimeType)){
-                mimeType='audio/ogg;codecs=opus';
-                if(!MediaRecorder.isTypeSupported(mimeType)){
-                    mimeType='';  // Let browser choose
-                }
-            }
-        }
+        document.getElementById('transcript').textContent='Speak now...';
         
-        try{
-            mediaRecorder=mimeType?new MediaRecorder(micStream,{mimeType}):new MediaRecorder(micStream);
-        }catch(e){
-            mediaRecorder=new MediaRecorder(micStream);
-        }
-
-        audioChunks=[];
-        mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};
-        mediaRecorder.onstop=async()=>{
-            if(audioChunks.length===0){
-                addLog('jenna','No audio recorded. Try again or type below.');
-                document.getElementById('stateLabel').textContent='READY';
-                document.getElementById('tapHint').style.display='block';
-                document.getElementById('centerLabel').className='center-label';
-                return;
-            }
-            
-            const blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||'audio/webm'});
-            const formData=new FormData();
-            formData.append('audio',blob,'recording.'+(mediaRecorder.mimeType.includes('ogg')?'ogg':'webm'));
-            formData.append('password',PWD);
-            document.getElementById('stateLabel').textContent='THINKING';
-            
-            try{
-                const resp=await fetch('/api/listen',{method:'POST',body:formData});
-                const data=await resp.json();
-                if(data.text&&data.text.trim()){
-                    document.getElementById('transcript').textContent=data.text;
-                    addLog('user',data.text);
-                    getResponse(data.text);
-                }else{
-                    addLog('jenna','Could not understand. Try typing below.');
-                    document.getElementById('stateLabel').textContent='READY';
-                    document.getElementById('tapHint').style.display='block';
-                    document.getElementById('centerLabel').className='center-label';
-                }
-            }catch(e){
-                addLog('jenna','Voice processing failed. Use text input.');
-                document.getElementById('stateLabel').textContent='READY';
-                document.getElementById('tapHint').style.display='block';
-                document.getElementById('centerLabel').className='center-label';
-            }
-            if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
-        };
-        mediaRecorder.start();
+        if(micStream&&audioCtx&&analyser){try{const s=audioCtx.createMediaStreamSource(micStream);s.connect(analyser);updLevel()}catch(e){}}
+        
+        try{speechRec.start()}catch(e){console.log(e);recording=false;orbState='idle';
+            document.getElementById('stateLabel').textContent='READY';
+            document.getElementById('tapHint').style.display='block';
+            document.getElementById('centerLabel').className='center-label'}
     }
 
-    function updateMicLevel(){
+    function updLevel(){
         if(!analyser||!recording)return;
-        const data=new Uint8Array(analyser.frequencyBinCount);
-        analyser.getByteFrequencyData(data);
-        let sum=0;for(let i=0;i<data.length;i++)sum+=data[i];
-        audioLevel=(sum/data.length)/255;
-        requestAnimationFrame(updateMicLevel);
+        const d=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(d);
+        let s=0;for(let i=0;i<d.length;i++)s+=d[i];audioLevel=(s/d.length)/255;
+        requestAnimationFrame(updLevel);
     }
 
     // ===== CHAT =====
     function sendText(){
-        const inp=document.getElementById('chatInput');
-        const m=inp.value.trim();if(!m)return;
-        inp.value='';
-        addLog('user',m);
-        document.getElementById('stateLabel').textContent='THINKING';
+        const inp=document.getElementById('chatInput');const m=inp.value.trim();if(!m)return;inp.value='';
+        addLog('user',m);document.getElementById('stateLabel').textContent='THINKING';
         document.getElementById('tapHint').style.display='none';
         getResponse(m);
     }
@@ -410,67 +266,45 @@
             document.getElementById('responseText').textContent=d.response;
             speak(d.response);
         }).catch(()=>{
-            addLog('jenna','Connection error.');
+            addLog('jenna','Connection error. Try again.');
             document.getElementById('stateLabel').textContent='READY';
             document.getElementById('tapHint').style.display='block';
         });
     }
 
-    function addLog(sender,text){
-        const log=document.getElementById('chatLog');
-        const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-        const d=document.createElement('div');
-        d.className=`log-entry ${sender}`;
-        d.innerHTML=`${text} <span style="font-size:10px;opacity:0.3;margin-left:6px">${time}</span>`;
-        log.appendChild(d);
-        log.scrollTop=log.scrollHeight;
+    function addLog(s,t){
+        const log=document.getElementById('chatLog'),time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const d=document.createElement('div');d.className=`log-entry ${s}`;
+        d.innerHTML=`${t} <span style="font-size:10px;opacity:0.3;margin-left:6px">${time}</span>`;
+        log.appendChild(d);log.scrollTop=log.scrollHeight;
     }
 
     // ===== TTS =====
     function speak(text){
         if(currentAudio){currentAudio.pause();currentAudio=null}
-        orbState='speaking';
-        document.getElementById('stateLabel').textContent='SPEAKING';
+        orbState='speaking';document.getElementById('stateLabel').textContent='SPEAKING';
         document.getElementById('tapHint').style.display='none';
         document.getElementById('centerLabel').className='center-label speaking';
         
         fetch('/api/speak',{method:'POST',headers:{'Content-Type':'application/json'},
             body:JSON.stringify({text:text,password:PWD})})
-        .then(r=>{if(!r.ok)throw new Error();return r.blob()})
+        .then(r=>{if(!r.ok)throw Error();return r.blob()})
         .then(blob=>{
             const url=URL.createObjectURL(blob);
             currentAudio=new Audio(url);
-            if(audioCtx){
-                try{
-                    const src=audioCtx.createMediaElementSource(currentAudio);
-                    if(!analyser)analyser=audioCtx.createAnalyser();
-                    analyser.fftSize=256;
-                    src.connect(analyser);
-                    analyser.connect(audioCtx.destination);
-                    updateSpeakLevel();
-                }catch(e){}
-            }
             currentAudio.onended=()=>{stopSpeaking();URL.revokeObjectURL(url);currentAudio=null};
-            currentAudio.onerror=()=>{stopSpeaking();currentAudio=null};
+            currentAudio.onerror=()=>{stopSpeaking();currentAudio=null;browserTTS(text)};
             currentAudio.play();
         })
-        .catch(()=>{
-            // Browser TTS fallback
-            if(window.speechSynthesis){
-                const u=new SpeechSynthesisUtterance(text);u.rate=1.05;u.pitch=1.15;
-                u.onend=()=>stopSpeaking();
-                window.speechSynthesis.speak(u);
-            }else{stopSpeaking()}
-        });
+        .catch(()=>browserTTS(text));
     }
 
-    function updateSpeakLevel(){
-        if(!analyser||orbState!=='speaking')return;
-        const data=new Uint8Array(analyser.frequencyBinCount);
-        analyser.getByteFrequencyData(data);
-        let sum=0;for(let i=0;i<data.length;i++)sum+=data[i];
-        audioLevel=(sum/data.length)/255;
-        requestAnimationFrame(updateSpeakLevel);
+    function browserTTS(text){
+        if(window.speechSynthesis){
+            const u=new SpeechSynthesisUtterance(text);u.rate=1.05;u.pitch=1.15;
+            u.onend=()=>stopSpeaking();
+            window.speechSynthesis.speak(u);
+        }else stopSpeaking();
     }
 
     function stopSpeaking(){
@@ -484,17 +318,8 @@
 
     function clearChat(){
         document.getElementById('chatLog').innerHTML='';
-        addLog('jenna','Fresh start! Tap the orb or type a message.');
+        addLog('jenna','Fresh start! Tap orb or type below.');
         fetch('/api/clear-memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:PWD})});
-    }
-
-    // ===== TIMER =====
-    function startTimer(){
-        const start=Date.now();
-        setInterval(()=>{
-            const e=Math.floor((Date.now()-start)/1000);
-            // Timer hidden - no ugly numbers on screen
-        },1000);
     }
     </script>
 </body>
