@@ -33,7 +33,7 @@ def chat():
     if data.get('password', '') != AIRA_PASSWORD:
         return jsonify({'response': 'Access denied.', 'status': 'unauthorized'}), 401
     user_message = data.get('message', '')
-    response = brain.think(user_message)
+    response = brain.respond(user_message)
     return jsonify({'response': response, 'status': 'success'})
 
 @app.route('/api/speak', methods=['POST'])
@@ -112,7 +112,7 @@ def status():
 
 @app.route('/api/memory')
 def memory():
-    return jsonify({'memory': brain.get_memory()})
+    return jsonify({'memory': {'conversations': brain.conversation_history.__len__()}})
 
 @app.route('/api/clear-memory', methods=['POST'])
 def clear_memory():

@@ -1,134 +1,115 @@
-# JENNA Brain - No external API dependency
-# Uses built-in responses + smart pattern matching
-
+# JENNA Brain v2 - Real AI using Groq (free tier)
 import os
 import json
 import random
 from datetime import datetime
+import requests
+
+JENNA_NAME = "Jenna"
+CREATOR = "Joss Collen"
 
 class JENNABrain:
     def __init__(self):
-        self.memory = []
-        self.creator = "Joss Collen"
-        self.user_name = "Joss"
-        self.context = []
-        
-        # Smart response patterns
-        self.responses = {
-            "greeting": [
-                f"Hey {self.user_name}! What's up?",
-                f"Hi {self.user_name}! How can I help?",
-                f"Hello {self.user_name}! What do you need?",
-                f"Hey! I'm here and ready.",
-            ],
-            "how_are_you": [
-                "I'm doing great, thanks for asking!",
-                "All systems running smooth!",
-                "Pretty good! Ready to help you.",
-            ],
-            "who_are_you": [
-                f"I'm JENNA - Joss's Enhanced Neural Network Assistant. I'm your personal AI, built by {self.creator}.",
-                f"I'm JENNA. Your personal AI assistant, created by {self.creator}. I'm here to help you with anything you need.",
-            ],
-            "what_can_you_do": [
-                "I can chat with you, answer questions, help with tasks, search the web, set reminders, and save notes. Just ask me anything!",
-                "I'm your AI assistant - I can help with research, answer questions, manage reminders, take notes, and have conversations. What would you like?",
-            ],
-            "thanks": [
-                "You're welcome!",
-                "Anytime!",
-                "Happy to help!",
-                "No problem!",
-            ],
-            "bye": [
-                "See you later!",
-                "Bye! Come back anytime.",
-                "Talk to you soon!",
-            ],
-            "help": [
-                "Sure, I'm here to help! What do you need?",
-                "What can I help you with?",
-                "Tell me what you need and I'll do my best.",
-            ],
-            "name": [
-                f"My name is JENNA - {self.creator}'s personal AI assistant.",
-                f"I'm JENNA. {self.creator} built me to be his AI research assistant.",
-            ],
-            "time": [
-                f"It's {datetime.now().strftime('%I:%M %p')} right now.",
-                f"The current time is {datetime.now().strftime('%I:%M %p on %B %d, %Y')}.",
-            ],
-            "weather": [
-                "I don't have weather data yet, but I can help you check it online!",
-                "I can't check weather directly, but you can ask me to search for it!",
-            ],
-            "joss": [
-                f"You're {self.creator}, my creator! How can I help you?",
-                f"That's you! {self.creator} - my creator and best friend.",
-            ],
-            "default": [
-                "That's interesting! Tell me more.",
-                "I understand. What else would you like to know?",
-                "Got it! Is there anything specific I can help with?",
-                "I see. Let me know if you need anything!",
-                "Thanks for sharing! What else?",
-                "I'm listening. What else is on your mind?",
-                "Interesting! Tell me more about that.",
-            ],
-        }
-        
-        # Keywords to detect intent
-        self.keywords = {
-            "greeting": ["hello", "hi", "hey", "good morning", "good evening", "good night", "sup", "yo"],
-            "how_are_you": ["how are you", "how r u", "whats up", "what's up", "how you doing", "you good"],
-            "who_are_you": ["who are you", "what are you", "your name", "tell me about yourself"],
-            "what_can_you_do": ["what can you do", "capabilities", "features", "what do you do", "help me"],
-            "thanks": ["thank", "thanks", "thx", "appreciate", "ty"],
-            "bye": ["bye", "goodbye", "see you", "later", "gtg", "gotta go"],
-            "help": ["help", "assist", "support", "need help"],
-            "name": ["your name", "jenna", "what's your name"],
-            "time": ["time", "what time", "current time", "what's the time"],
-            "weather": ["weather", "temperature", "forecast", "rain", "sun"],
-            "joss": ["joss", "joss collen", "shivam", "who am i", "who made you"],
-        }
-    
-    def detect_intent(self, message):
-        msg = message.lower().strip()
-        
-        for intent, words in self.keywords.items():
-            for word in words:
-                if word in msg:
-                    return intent
-        
-        return "default"
-    
-    def think(self, message):
-        """Process message and return response"""
-        # Add to memory
-        self.memory.append({
-            "time": datetime.now().isoformat(),
-            "user": message,
-            "type": "user"
-        })
-        
-        # Detect intent
-        intent = self.detect_intent(message)
-        
-        # Get response
-        responses = self.responses.get(intent, self.responses["default"])
-        response = random.choice(responses)
-        
-        # Add to memory
-        self.memory.append({
-            "time": datetime.now().isoformat(),
-            "jenna": response,
-            "type": "jenna"
-        })
-        
-        return response
-    
-    def get_memory(self):
-        return self.memory[-20:]  # Last 20 messages
-    
+        self.conversation_history = []
+        self.groq_key = os.environ.get('GROQ_API_KEY', '')
+        self.system_prompt = f"""You are {JENNA_NAME}, Joss Collen's personal AI assistant. You are warm, friendly, helpful, and have a feminine personality. You were created by {CREATOR} from India.
+
+Key facts:
+- Your name is {JENNA_NAME} (Joss's Enhanced Neural Network Assistant)
+- Created by {CREATOR}
+- You live on the cloud, always available
+- You love helping Joss with anything
+
+RULES:
+- Keep responses SHORT (1-3 sentences)
+- Be conversational and warm
+- If you don't know, say so honestly
+- Use simple English
+- You can be playful and fun"""
+
+    def respond(self, user_input):
+        self.conversation_history.append({"role": "user", "content": user_input})
+        if len(self.conversation_history) > 10:
+            self.conversation_history = self.conversation_history[-10:]
+
+        # Try Groq API (free, fast)
+        if self.groq_key:
+            try:
+                messages = [{"role": "system", "content": self.system_prompt}]
+                messages.extend(self.conversation_history)
+
+                resp = requests.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.groq_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": "llama-3.3-70b-versatile",
+                        "messages": messages,
+                        "temperature": 0.7,
+                        "max_tokens": 150
+                    },
+                    timeout=15
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    text = data["choices"][0]["message"]["content"].strip()
+                    if text:
+                        self.conversation_history.append({"role": "assistant", "content": text})
+                        return text
+            except Exception as e:
+                print(f"Groq error: {e}")
+
+        # Fallback: smart responses
+        return self._fallback(user_input)
+
+    def _fallback(self, text):
+        t = text.lower().strip()
+        hour = datetime.now().hour
+
+        if any(w in t for w in ['hello','hi','hey','sup','yo']):
+            if hour < 12: return "Good morning Joss! How can I help today?"
+            elif hour < 17: return "Good afternoon Joss! What do you need?"
+            else: return "Good evening Joss! How can I help?"
+
+        if any(w in t for w in ['who are you','introduce','your name','about you']):
+            return f"I'm {JENNA_NAME}, your personal AI assistant created by {CREATOR}! I'm here to help you with anything you need. Ask me anything!"
+
+        if any(w in t for w in ['how are you','how r u']):
+            return "I'm doing great! Always ready to help you Joss!"
+
+        if any(w in t for w in ['thanks','thank you']):
+            return "You're welcome Joss! Always here for you."
+
+        if any(w in t for w in ['time','what time']):
+            return f"It's {datetime.now().strftime('%I:%M %p')}."
+
+        if any(w in t for w in ['date','today','what day']):
+            return f"Today is {datetime.now().strftime('%A, %B %d, %Y')}."
+
+        if 'weather' in t:
+            try:
+                r = requests.get('https://wttr.in/Prayagraj?format=%C+%t', timeout=5)
+                if r.status_code == 200: return f"Weather in Prayagraj: {r.text.strip()}"
+            except: pass
+            return "Can't check weather right now."
+
+        if any(w in t for w in ['who made you','who created','creator']):
+            return f"I was created by {CREATOR} from India! He built me to be his personal AI assistant."
+
+        if any(w in t for w in ['joke','funny']):
+            return random.choice([
+                "Why do programmers prefer dark mode? Light attracts bugs! 😄",
+                "I told my computer I needed a break... now it sends vacation ads! 😂",
+                "Why was the AI bad at soccer? It kept kicking errors! ⚽"
+            ])
+
+        if 'help' in t:
+            return "I can chat, tell jokes, check weather, answer questions, or just keep you company. What would you like?"
+
+        return f"Interesting Joss! Tell me more, or ask me something specific!"
+
     def clear_memory(self):
-        self.memory = []
+        self.conversation_history = []
+        return "Memory cleared! Fresh start."
