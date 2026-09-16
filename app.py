@@ -30,46 +30,31 @@ def chat():
     data = request.json
     if data.get('password', '') != AIRA_PASSWORD:
         return jsonify({'response': 'Access denied.', 'status': 'unauthorized'}), 401
-    
     user_message = data.get('message', '')
     response = brain.think(user_message)
-    
-    return jsonify({
-        'response': response,
-        'status': 'success'
-    })
+    return jsonify({'response': response, 'status': 'success'})
 
 @app.route('/api/speak', methods=['POST'])
 def speak():
-    """Generate speech audio using edge-tts"""
     data = request.json
     if data.get('password', '') != AIRA_PASSWORD:
         return jsonify({'status': 'unauthorized'}), 401
-    
     text = data.get('text', '')
     if not text:
         return jsonify({'status': 'no text'}), 400
-    
-    # Generate audio
+    # Truncate long text for TTS
+    if len(text) > 500:
+        text = text[:500] + "..."
     output = os.path.join(tempfile.gettempdir(), 'aira_speech.mp3')
     success = AIRAVoice.generate_speech_sync(text, output)
-    
     if success and os.path.exists(output):
         return send_file(output, mimetype='audio/mpeg', as_attachment=False)
-    
     return jsonify({'status': 'tts error'}), 500
-
-@app.route('/api/voices')
-def voices():
-    return jsonify(AIRAVoice.get_available_voices())
 
 @app.route('/api/status')
 def status():
-    return jsonify({
-        'name': 'AIRA', 'version': '3.0.0', 'status': 'online',
-        'creator': 'Joss Collen', 'brain': 'Groq AI + edge-tts',
-        'protected': True
-    })
+    return jsonify({'name': 'AIRA', 'version': '3.0.0', 'status': 'online',
+        'creator': 'Joss Collen', 'brain': 'Groq AI + edge-tts', 'protected': True})
 
 @app.route('/api/memory')
 def memory():
