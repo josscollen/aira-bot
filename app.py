@@ -1,11 +1,13 @@
-# AIRA - Main Application (Render Version)
+# JENNA - Main Application (Render Version)
+# Joss's Enhanced Neural Network Assistant
+
 from flask import Flask, render_template, request, jsonify, send_file
-import os, sys, tempfile
+import os, sys, tempfile, json, requests
 
 AIRA_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(AIRA_DIR, 'brain'))
 
-from aira_brain import AIRABrain, AIRAVoice
+from aira_brain import AIRABrain
 
 app = Flask(__name__, 
             template_folder=os.path.join(AIRA_DIR, 'ui', 'templates'),
@@ -42,19 +44,69 @@ def speak():
     text = data.get('text', '')
     if not text:
         return jsonify({'status': 'no text'}), 400
-    # Truncate long text for TTS
-    if len(text) > 500:
-        text = text[:500] + "..."
-    output = os.path.join(tempfile.gettempdir(), 'aira_speech.mp3')
-    success = AIRAVoice.generate_speech_sync(text, output)
-    if success and os.path.exists(output):
-        return send_file(output, mimetype='audio/mpeg', as_attachment=False)
+    
+    import asyncio
+    import edge_tts
+    
+    async def gen_speech():
+        voice = "en-US-AvaNeural"
+        c = edge_tts.Communicate(text, voice, rate="+3%", pitch="+1Hz")
+        output = os.path.join(tempfile.gettempdir(), 'jenna_speech.mp3')
+        await c.save(output)
+        return output
+    
+    try:
+        output = asyncio.run(gen_speech())
+        if os.path.exists(output):
+            return send_file(output, mimetype='audio/mpeg', as_attachment=False)
+    except Exception as e:
+        print(f"TTS error: {e}")
+    
     return jsonify({'status': 'tts error'}), 500
+
+@app.route('/api/listen', methods=['POST'])
+def listen():
+    """Server-side STT using Groq Whisper - no browser mic dependency"""
+    if request.form.get('password', '') != AIRA_PASSWORD:
+        return jsonify({'text': '', 'status': 'unauthorized'}), 401
+    
+    audio_file = request.files.get('audio')
+    if not audio_file:
+        return jsonify({'text': '', 'status': 'no audio'}), 400
+    
+    # Save audio to temp
+    temp_path = os.path.join(tempfile.gettempdir(), 'jenna_input.webm')
+    audio_file.save(temp_path)
+    
+    groq_key = os.environ.get('GROQ_API_KEY', '')
+    if not groq_key:
+        return jsonify({'text': '', 'status': 'no API key'}), 500
+    
+    # Send to Groq Whisper API
+    try:
+        url = "https://api.groq.com/openai/v1/audio/transcriptions"
+        with open(temp_path, 'rb') as f:
+            files = {'file': ('recording.webm', f, 'audio/webm')}
+            data = {'model': 'whisper-large-v3-turbo', 'response_format': 'json'}
+            headers = {'Authorization': f'Bearer {groq_key}'}
+            resp = requests.post(url, headers=headers, files=files, data=data, timeout=30)
+        
+        if resp.status_code == 200:
+            text = resp.json().get('text', '')
+            return jsonify({'text': text, 'status': 'success'})
+        else:
+            print(f"Whisper error: {resp.status_code} {resp.text}")
+            return jsonify({'text': '', 'status': 'whisper error'}), 500
+    except Exception as e:
+        print(f"Listen error: {e}")
+        return jsonify({'text': '', 'status': str(e)}), 500
 
 @app.route('/api/status')
 def status():
-    return jsonify({'name': 'AIRA', 'version': '3.0.0', 'status': 'online',
-        'creator': 'Joss Collen', 'brain': 'Groq AI + edge-tts', 'protected': True})
+    return jsonify({'name': 'JENNA', 'version': '1.0.0', 'status': 'online',
+        'creator': 'Joss Collen', 'full_name': "Joss's Enhanced Neural Network Assistant",
+        'brain': 'Groq AI', 'voice': 'Independent TTS', 'stt': 'Groq Whisper Server-Side',
+        'protected': True})
 
 @app.route('/api/memory')
 def memory():

@@ -290,9 +290,19 @@
         const p=document.getElementById('pwdInput').value;
         if(!p)return;
         fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:p})})
-        .then(r=>{if(r.ok){PWD=p;document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio();startTimer()}
+        .then(r=>{if(r.ok){PWD=p;localStorage.setItem('jenna_pwd',p);document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio();startTimer()}
         else{document.getElementById('loginErr').style.display='block';document.getElementById('pwdInput').value=''}});
     }
+    // Auto-login if saved
+    window.addEventListener('load',()=>{
+        const saved=localStorage.getItem('jenna_pwd');
+        if(saved){
+            PWD=saved;
+            fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:saved})})
+            .then(r=>{if(r.ok){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';initAudio();startTimer();localStorage.setItem('jenna_pwd',saved)}
+            else{localStorage.removeItem('jenna_pwd')}});
+        }
+    });
 
     // ===== AUDIO / MIC =====
     async function initAudio(){
@@ -302,23 +312,13 @@
             analyser.fftSize=256;
         }catch(e){console.log('Audio init failed')}
         
-        if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
-            const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-            rec=new SR();rec.continuous=false;rec.interimResults=true;rec.lang='en-US';
-            rec.onresult=e=>{
-                let interim='';
-                for(let i=e.resultIndex;i<e.results.length;i++){
-                    const t=e.results[i][0].transcript;
-                    if(e.results[i].isFinal) document.getElementById('transcript').textContent=t;
-                    else interim=t;
-                }
-                if(interim) document.getElementById('transcript').textContent=interim;
-            };
-            rec.onend=()=>{stopListening()};
-            rec.onerror=()=>{stopListening()};
+        // Check if MediaRecorder is available (for sending audio to server)
+        if(typeof MediaRecorder!=='undefined'){
+            console.log('MediaRecorder available - will use server-side STT');
         }
     }
 
+    // Server-side STT: record audio → send to Groq Whisper API → get text
     async function startMicStream(){
         try{
             micStream=await navigator.mediaDevices.getUserMedia({audio:true});
@@ -327,10 +327,43 @@
                 src.connect(analyser);
                 updateMicLevel();
             }
+            // Start recording for server-side STT
+            mediaRecorder=new MediaRecorder(micStream,{mimeType:'audio/webm'});
+            audioChunks=[];
+            mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};
+            mediaRecorder.start();
         }catch(e){console.log('Mic stream failed')}
     }
 
     function stopMicStream(){
+        if(mediaRecorder&&mediaRecorder.state==='recording'){
+            mediaRecorder.stop();
+            // Send recorded audio to server for STT
+            mediaRecorder.onstop=async()=>{
+                if(audioChunks.length===0)return;
+                const blob=new Blob(audioChunks,{type:'audio/webm'});
+                const formData=new FormData();
+                formData.append('audio',blob,'recording.webm');
+                formData.append('password',PWD);
+                document.getElementById('stateLabel').textContent='THINKING';
+                try{
+                    const resp=await fetch('/api/listen',{method:'POST',body:formData});
+                    const data=await resp.json();
+                    if(data.text){
+                        document.getElementById('transcript').textContent=data.text;
+                        addLog('user',data.text);
+                        getResponse(data.text);
+                    }else{
+                        document.getElementById('stateLabel').textContent='READY';
+                        document.getElementById('tapHint').style.display='block';
+                    }
+                }catch(e){
+                    console.log('STT error:',e);
+                    document.getElementById('stateLabel').textContent='READY';
+                    document.getElementById('tapHint').style.display='block';
+                }
+            };
+        }
         if(micStream){micStream.getTracks().forEach(t=>t.stop());micStream=null}
     }
 
@@ -345,8 +378,7 @@
 
     function toggleMic(){
         if(speaking){stopSpeaking();return}
-        if(recording){rec.stop();return}
-        if(!rec){addLog('aira','Voice not supported. Type your message.');return}
+        if(recording){recording=false;orbState='idle';stopMicStream();return}
         
         recording=true;orbState='listening';
         document.getElementById('stateLabel').textContent='LISTENING';
@@ -354,25 +386,6 @@
         document.getElementById('centerLabel').className='center-label listening';
         document.getElementById('transcript').textContent='';
         startMicStream();
-        rec.start();
-    }
-
-    function stopListening(){
-        recording=false;orbState='idle';
-        audioLevel=0;
-        stopMicStream();
-        document.getElementById('stateLabel').textContent='THINKING';
-        document.getElementById('centerLabel').className='center-label';
-        
-        const text=document.getElementById('transcript').textContent.trim();
-        if(text){
-            addLog('user',text);
-            document.getElementById('transcript').textContent='';
-            getResponse(text);
-        }else{
-            document.getElementById('stateLabel').textContent='READY';
-            document.getElementById('tapHint').style.display='block';
-        }
     }
 
     // ===== CHAT =====
