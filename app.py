@@ -72,11 +72,15 @@ def listen():
     
     audio_file = request.files.get('audio')
     if not audio_file:
+        print("Listen: No audio file received")
         return jsonify({'text': '', 'status': 'no audio'}), 400
     
-    # Save audio to temp
-    temp_path = os.path.join(tempfile.gettempdir(), 'jenna_input.webm')
+    # Save audio to temp - detect format
+    filename = audio_file.filename or 'recording.webm'
+    ext = filename.split('.')[-1] if '.' in filename else 'webm'
+    temp_path = os.path.join(tempfile.gettempdir(), f'jenna_input.{ext}')
     audio_file.save(temp_path)
+    print(f"Listen: Saved audio as {temp_path} ({os.path.getsize(temp_path)} bytes)")
     
     groq_key = os.environ.get('GROQ_API_KEY', '')
     if not groq_key:

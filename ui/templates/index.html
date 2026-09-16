@@ -286,10 +286,15 @@
     async function toggleMic(){
         if(speaking){stopSpeaking();return}
         if(recording){
-            // Stop recording
             recording=false;orbState='idle';
             if(mediaRecorder&&mediaRecorder.state==='recording') mediaRecorder.stop();
             document.getElementById('stateLabel').textContent='THINKING';
+            return;
+        }
+
+        // Check if mic is available
+        if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+            addLog('jenna','🎤 Mic not supported on this device. Use the text input below.');
             return;
         }
 
@@ -297,6 +302,7 @@
         try{
             micStream=await navigator.mediaDevices.getUserMedia({audio:true});
         }catch(e){
+            addLog('jenna','🎤 Mic permission denied. Tap "Allow" next time, or type below.');
             document.getElementById('micBanner').style.display='block';
             setTimeout(()=>document.getElementById('micBanner').style.display='none',5000);
             return;
@@ -310,22 +316,48 @@
 
         // Visualize mic
         if(audioCtx&&analyser){
-            const src=audioCtx.createMediaStreamSource(micStream);
-            src.connect(analyser);
-            updateMicLevel();
+            try{
+                const src=audioCtx.createMediaStreamSource(micStream);
+                src.connect(analyser);
+                updateMicLevel();
+            }catch(e){}
         }
 
-        // Record audio
-        mediaRecorder=new MediaRecorder(micStream,{mimeType:'audio/webm'});
+        // Try multiple audio formats for mobile compatibility
+        let mimeType='audio/webm;codecs=opus';
+        if(!MediaRecorder.isTypeSupported(mimeType)){
+            mimeType='audio/webm';
+            if(!MediaRecorder.isTypeSupported(mimeType)){
+                mimeType='audio/ogg;codecs=opus';
+                if(!MediaRecorder.isTypeSupported(mimeType)){
+                    mimeType='';  // Let browser choose
+                }
+            }
+        }
+        
+        try{
+            mediaRecorder=mimeType?new MediaRecorder(micStream,{mimeType}):new MediaRecorder(micStream);
+        }catch(e){
+            mediaRecorder=new MediaRecorder(micStream);
+        }
+
         audioChunks=[];
         mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data)};
         mediaRecorder.onstop=async()=>{
-            if(audioChunks.length===0)return;
-            const blob=new Blob(audioChunks,{type:'audio/webm'});
+            if(audioChunks.length===0){
+                addLog('jenna','No audio recorded. Try again or type below.');
+                document.getElementById('stateLabel').textContent='READY';
+                document.getElementById('tapHint').style.display='block';
+                document.getElementById('centerLabel').className='center-label';
+                return;
+            }
+            
+            const blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||'audio/webm'});
             const formData=new FormData();
-            formData.append('audio',blob,'recording.webm');
+            formData.append('audio',blob,'recording.'+(mediaRecorder.mimeType.includes('ogg')?'ogg':'webm'));
             formData.append('password',PWD);
             document.getElementById('stateLabel').textContent='THINKING';
+            
             try{
                 const resp=await fetch('/api/listen',{method:'POST',body:formData});
                 const data=await resp.json();
@@ -334,11 +366,13 @@
                     addLog('user',data.text);
                     getResponse(data.text);
                 }else{
+                    addLog('jenna','Could not understand. Try typing below.');
                     document.getElementById('stateLabel').textContent='READY';
                     document.getElementById('tapHint').style.display='block';
                     document.getElementById('centerLabel').className='center-label';
                 }
             }catch(e){
+                addLog('jenna','Voice processing failed. Use text input.');
                 document.getElementById('stateLabel').textContent='READY';
                 document.getElementById('tapHint').style.display='block';
                 document.getElementById('centerLabel').className='center-label';
